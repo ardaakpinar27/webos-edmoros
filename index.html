@@ -491,6 +491,8 @@
             weather: { id: 'weather', title: 'Hava Durumu', icon: 'bg-white border border-slate-200', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.3-1.7-4.2-3.9-4.5C17.6 6.6 14.6 4 11 4 7.9 4 5.2 6.1 4.2 9 2.1 9.6 1 11.6 1 14c0 2.8 2.2 5 5 5h11.5z"></path></svg>' },
             calculator: { id: 'calculator', title: 'Hesap Makinesi', icon: 'bg-orange-500', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14"></line><line x1="8" y1="10" x2="8" y2="10"></line><line x1="12" y1="10" x2="12" y2="10"></line><line x1="16" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="8" y2="14"></line><line x1="12" y1="14" x2="12" y2="14"></line><line x1="8" y1="18" x2="8" y2="18"></line><line x1="12" y1="18" x2="12" y2="18"></line><line x1="16" y1="18" x2="16" y2="18"></line></svg>' },
             shortcuts: { id: 'shortcuts', title: 'Kısayollar', icon: 'bg-blue-500', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><path d="M7 8h10M7 12h10M7 16h10"></path></svg>' },
+            file_manager: { id: 'file_manager', title: 'Dosya Yöneticisi', icon: 'bg-yellow-500', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>' },
+            package_installer: { id: 'package_installer', title: 'Paket Yükleyicisi', icon: 'bg-emerald-600', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>' },
             dizipal: { id: 'dizipal', title: 'Dizipal', icon: 'bg-black', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>' },
             task_manager: { id: 'task_manager', title: 'Görev Yöneticisi', icon: 'bg-slate-700', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>' },
             terminal: { id: 'terminal', title: 'Terminal', icon: 'bg-zinc-800', svg: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>' },
@@ -597,7 +599,7 @@
                 win.id = `window-${id}`; win.className = 'window glass';
                 win.style.left = (120 + Math.random() * 80) + 'px'; win.style.top = (80 + Math.random() * 60) + 'px';
                 win.style.zIndex = ++zIndexCounter;
-                const sizes = { settings: {w: '800px', h: '550px'}, store: {w: '820px', h: '580px'}, terminal: {w: '600px', h: '400px'}, music: {w: '950px', h: '650px'}, calendar: {w: '400px', h: '620px'}, notepad: {w: '600px', h: '450px'}, youtube: {w: '950px', h: '650px'}, task_manager: {w: '450px', h: '500px'}, dizipal: {w: '1050px', h: '700px'}, weather: {w: '400px', h: '550px'}, calculator: {w: '320px', h: '480px'}, shortcuts: {w: '500px', h: '600px'}, about: {w: '550px', h: '620px'}, pdf_reader: {w: '900px', h: '700px'}, edmor_browser: {w: '1000px', h: '700px'} };
+                const sizes = { settings: {w: '800px', h: '550px'}, store: {w: '820px', h: '580px'}, terminal: {w: '600px', h: '400px'}, music: {w: '950px', h: '650px'}, calendar: {w: '400px', h: '620px'}, notepad: {w: '600px', h: '450px'}, youtube: {w: '950px', h: '650px'}, task_manager: {w: '450px', h: '500px'}, dizipal: {w: '1050px', h: '700px'}, weather: {w: '400px', h: '550px'}, calculator: {w: '320px', h: '480px'}, shortcuts: {w: '500px', h: '600px'}, about: {w: '550px', h: '620px'}, pdf_reader: {w: '900px', h: '700px'}, edmor_browser: {w: '1000px', h: '700px'}, file_manager: {w: '850px', h: '550px'}, package_installer: {w: '420px', h: '500px'} };
                 const s = sizes[id] || {w: '500px', h: '400px'}; win.style.width = s.w; win.style.height = s.h;
                 const appData = SYSTEM_APPS[id] || STORE_APPS[id];
                 win.innerHTML = `<div class="window-header" onmousedown="window.dragWindow(event, this.parentElement)">
@@ -679,6 +681,8 @@
             else if(id === 'about') window.renderAboutApp(id);
             else if(id === 'pdf_reader') window.renderPDFReader(id);
             else if(id === 'edmor_browser') window.renderEdmorBrowser(id);
+            else if(id === 'file_manager') window.renderFileManager(id);
+            else if(id === 'package_installer') window.renderPackageInstaller(id);
             else if(id === 'store') cont.innerHTML = window.generateStoreHTML();
             else if(id === 'calendar') cont.innerHTML = window.generateCalendarHTML();
             else if(id === 'terminal') cont.innerHTML = `<div class="p-5 font-mono text-sm h-full bg-white text-blue-700">root@edmor:~$ <br><br>Kernel: Edmor-X v6.4.2<br>Sürüm: ${SYSTEM_VERSION}<br>Ready.</div>`;
@@ -723,6 +727,175 @@
                     </div>
                 </div>`;
             }
+        };
+
+        window.renderFileManager = function(winId, currentPath = '/home/admin') {
+            const cont = document.getElementById(`win-content-${winId}`);
+            
+            // Mock dizin yapısı
+            const directories = {
+                '/': ['bin', 'etc', 'home', 'root', 'usr', 'var'],
+                '/home': ['admin', 'guest'],
+                '/home/admin': ['Belgeler', 'İndirilenler', 'Masaüstü', 'Resimler'],
+                '/home/admin/Belgeler': [],
+                '/root': ['secret.txt'],
+                '/etc': ['system.conf', 'network.conf']
+            };
+
+            const folders = directories[currentPath] || [];
+            // Notları dosya gibi gösterelim
+            const notesAsFiles = currentPath === '/home/admin/Belgeler' ? systemData.notes.map(n => n.title + '.txt') : [];
+            const allItems = [...folders, ...notesAsFiles];
+
+            cont.innerHTML = `
+                <div class="flex h-full bg-white text-slate-800 overflow-hidden">
+                    <div class="sidebar-nav w-48 bg-slate-50 border-r border-slate-200 py-4">
+                        <div class="px-6 mb-6">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Favoriler</h4>
+                            <div class="space-y-1">
+                                <div onclick="window.renderFileManager('${winId}', '/home/admin')" class="flex items-center gap-2 p-2 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold ${currentPath.includes('/home/admin') ? 'text-blue-600 bg-blue-50' : ''}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Ana Dizin
+                                </div>
+                                <div onclick="window.renderFileManager('${winId}', '/home/admin/Belgeler')" class="flex items-center gap-2 p-2 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold ${currentPath === '/home/admin/Belgeler' ? 'text-blue-600 bg-blue-50' : ''}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg> Belgeler
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-6">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Sistem</h4>
+                            <div class="space-y-1">
+                                <div onclick="window.renderFileManager('${winId}', '/')" class="flex items-center gap-2 p-2 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold ${currentPath === '/' ? 'text-blue-600 bg-blue-50' : ''}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6" y2="6"></line><line x1="6" y1="18" x2="6" y2="18"></line></svg> Root (/)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-grow flex flex-col">
+                        <div class="p-3 bg-white border-b border-slate-100 flex items-center gap-4">
+                            <div class="flex gap-1">
+                                <button onclick="window.renderFileManager('${winId}', '/')" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                            </div>
+                            <div class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-1.5 text-[11px] font-bold text-slate-500 tracking-wide">${currentPath}</div>
+                        </div>
+                        <div class="p-6 overflow-y-auto grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4 content-start">
+                            ${allItems.map(item => {
+                                const isFolder = !item.includes('.');
+                                return `
+                                <div class="flex flex-col items-center gap-2 p-3 hover:bg-blue-50 rounded-2xl cursor-pointer transition-all group" ondblclick="window.renderFileManager('${winId}', '${currentPath === '/' ? '' : currentPath}/${item}')">
+                                    <div class="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-110">
+                                        ${isFolder ? 
+                                            '<svg class="text-yellow-500" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>' : 
+                                            '<svg class="text-blue-500" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>'
+                                        }
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-700 text-center truncate w-full px-1">${item}</span>
+                                </div>`;
+                            }).join('')}
+                            ${allItems.length === 0 ? '<div class="col-span-full mt-10 text-center text-xs font-bold text-slate-300 uppercase tracking-widest">Klasör Boş</div>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.renderPackageInstaller = function(winId, pkgInfo = null) {
+            const cont = document.getElementById(`win-content-${winId}`);
+            if (pkgInfo) {
+                cont.innerHTML = `
+                    <div class="flex flex-col h-full bg-white p-8">
+                        <div class="flex items-start gap-6 mb-8">
+                            <div class="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                            </div>
+                            <div class="flex-grow">
+                                <h2 class="text-2xl font-black text-slate-900">${pkgInfo.name}</h2>
+                                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mt-1">${pkgInfo.ext} Paketi</p>
+                                <div class="mt-4 flex gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <span>Versiyon: 1.0.0</span>
+                                    <span>Boyut: 4.2 MB</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-grow bg-slate-50 rounded-3xl p-6 border border-slate-100 mb-8 overflow-y-auto">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Paket Açıklaması</h4>
+                            <p class="text-sm text-slate-600 font-medium leading-relaxed">
+                                Bu bir sistem paketidir. Yüklendiğinde EdmorOs Core yapılandırmasına dahil edilecektir. Paket doğrulaması Linux Kernel Core tarafından tamamlanmıştır.
+                            </p>
+                        </div>
+                        <div id="installProgress" class="hidden mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-black text-slate-400 uppercase">Yükleniyor...</span>
+                                <span id="installPercent" class="text-[10px] font-black text-blue-600 font-mono">0%</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="installBar" class="h-full bg-blue-600 w-0 transition-all"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="window.renderPackageInstaller('${winId}')" class="flex-grow bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-xs uppercase hover:bg-slate-200 transition-all">İPTAL</button>
+                            <button id="startInstallBtn" onclick="window.startPackageInstall('${winId}')" class="flex-grow bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg hover:bg-blue-700 transition-all">PAKETİ YÜKLE</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                cont.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full bg-slate-50 p-12 text-center">
+                        <div class="w-24 h-24 bg-white rounded-[40px] flex items-center justify-center text-emerald-600 mb-8 shadow-xl border border-slate-100">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">Linux Paket Yükleyicisi</h2>
+                        <p class="text-sm text-slate-500 font-medium mb-10 max-w-[280px] leading-relaxed">Sisteme entegre etmek istediğiniz <b>.deb</b> veya <b>.rpm</b> uzantılı paket dosyasını seçin.</p>
+                        <input type="file" id="pkgLoader-${winId}" accept=".deb,.rpm" class="hidden" onchange="window.handlePackageSelect(event, '${winId}')">
+                        <button onclick="document.getElementById('pkgLoader-${winId}').click()" class="bg-slate-900 text-white px-12 py-5 rounded-3xl font-black text-xs uppercase shadow-2xl hover:bg-blue-600 transition-all transform active:scale-95 tracking-widest">PAKET SEÇİN</button>
+                        <div class="mt-8 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">EdmorOs Core Package Manager v1.0</div>
+                    </div>
+                `;
+            }
+        };
+
+        window.handlePackageSelect = function(e, winId) {
+            const file = e.target.files[0];
+            if (file) {
+                const ext = file.name.split('.').pop().toUpperCase();
+                if (ext === 'DEB' || ext === 'RPM') {
+                    window.renderPackageInstaller(winId, { name: file.name, ext: ext });
+                }
+            }
+        };
+
+        window.startPackageInstall = function(winId) {
+            const btn = document.getElementById('startInstallBtn');
+            const progress = document.getElementById('installProgress');
+            const bar = document.getElementById('installBar');
+            const percent = document.getElementById('installPercent');
+            
+            btn.classList.add('hidden');
+            progress.classList.remove('hidden');
+            
+            let p = 0;
+            const timer = setInterval(() => {
+                p += Math.floor(Math.random() * 15) + 5;
+                if (p > 100) p = 100;
+                bar.style.width = p + '%';
+                percent.innerText = p + '%';
+                
+                if (p >= 100) {
+                    clearInterval(timer);
+                    setTimeout(() => {
+                        const cont = document.getElementById(`win-content-${winId}`);
+                        cont.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full bg-white p-12 text-center animate-fade-in">
+                                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <h2 class="text-2xl font-black text-slate-900">Kurulum Başarılı</h2>
+                                <p class="text-sm text-slate-500 font-medium mt-2">Paket başarıyla Linux Core dizinine entegre edildi.</p>
+                                <button onclick="window.renderPackageInstaller('${winId}')" class="mt-10 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase shadow-lg">TAMAM</button>
+                            </div>
+                        `;
+                    }, 500);
+                }
+            }, 300);
         };
 
         window.renderPDFReader = function(winId, pdfUrl = null) {
