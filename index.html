@@ -9,23 +9,57 @@
 
 <body>
 
-<div id="authScreen" class="screen screen-center">
-  <div class="card">
+<div id="root">
+
+  <!-- LOGIN -->
+  <section id="screen-login" class="screen">
     <h1>EdMessenger</h1>
-    <input id="email" placeholder="E-posta">
-    <input id="password" type="password" placeholder="Şifre">
-    <button id="loginBtn" class="primary">Giriş Yap</button>
-    <button id="registerBtn" class="secondary">Kayıt Ol</button>
-    <p id="error" class="error"></p>
-  </div>
+    <input id="loginEmail" placeholder="E-posta">
+    <input id="loginPass" type="password" placeholder="Şifre">
+    <button id="btnLogin">Giriş Yap</button>
+    <button id="btnRegister">Kayıt Ol</button>
+    <p id="loginError"></p>
+  </section>
+
+  <!-- USERNAME -->
+  <section id="screen-username" class="screen hidden">
+    <h2>Kullanıcı Adı Seç</h2>
+    <input id="usernameInput" placeholder="username">
+    <button id="btnSaveUsername">Devam</button>
+    <p id="usernameError"></p>
+  </section>
+
+  <!-- APP -->
+  <section id="screen-app" class="screen hidden">
+
+    <header>EdMessenger</header>
+
+    <nav>
+      <button data-tab="chats">Sohbetler</button>
+      <button data-tab="friends">Arkadaşlar</button>
+    </nav>
+
+    <main>
+      <!-- CHATS -->
+      <div id="tab-chats" class="tab">
+        <p>Henüz sohbet yok</p>
+      </div>
+
+      <!-- FRIENDS -->
+      <div id="tab-friends" class="tab hidden">
+        <h3>Arkadaş Ekle</h3>
+        <input id="friendUsername" placeholder="username">
+        <button id="btnSendRequest">İstek Gönder</button>
+
+        <h3>Gelen İstekler</h3>
+        <div id="requests"></div>
+      </div>
+    </main>
+
+  </section>
+
 </div>
 
-<div id="appRoot" class="screen hidden">
-  <header class="header">EdMessenger</header>
-  <main class="main">Giriş başarılı ✅</main>
-</div>
-
-<!-- SADECE TEK MODULE -->
 <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -1,101 +1,60 @@
-/* RESET */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: system-ui, Arial;
 }
 
 body {
-  height: 100vh;
+  margin: 0;
   background: #f5f5f5;
 }
 
-/* SCREEN SYSTEM */
 .screen {
-  position: fixed;
-  inset: 0;
-  background: #fff;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-.screen-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* CARD */
-.card {
-  width: 100%;
-  max-width: 320px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.card h1 {
-  text-align: center;
-  color: #1e90ff;
-  margin-bottom: 8px;
-}
-
-.card input {
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-}
-
-.primary {
-  padding: 14px;
-  border-radius: 999px;
-  border: none;
-  background: #1e90ff;
-  color: #fff;
-  font-weight: 600;
-}
-
-.secondary {
-  padding: 14px;
-  border-radius: 999px;
-  border: none;
-  background: #eee;
-  color: #333;
-}
-
-/* APP LAYOUT */
 .hidden {
   display: none;
 }
 
-.header {
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: #1e90ff;
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 10px;
 }
 
-.main {
-  height: calc(100vh - 56px - 60px);
-  padding: 16px;
-  overflow-y: auto;
-}
-
-.footer {
-  height: 60px;
-  background: #fff;
-  border-top: 1px solid #ddd;
-  display: flex;
-}
-
-.footer button {
-  flex: 1;
+button {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: #1e90ff;
+  color: #fff;
   border: none;
-  background: none;
-  font-size: 14px;
+  border-radius: 10px;
+}
+
+header {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+nav {
+  display: flex;
+  gap: 10px;
+}
+
+nav button {
+  flex: 1;
+  background: #eee;
+  color: #000;
+}
+
+.tab {
+  margin-top: 20px;
+}
+
+#requests div {
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 5px;
 }

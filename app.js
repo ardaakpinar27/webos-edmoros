@@ -10,10 +10,16 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc
+  updateDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* 🔥 FIREBASE INIT */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
   authDomain: "olednote.firebaseapp.com",
@@ -27,87 +33,101 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 🔹 ELEMENTLER */
-const authScreen = document.getElementById("authScreen");
-const appRoot = document.getElementById("appRoot");
-const error = document.getElementById("error");
+/* SCREENS */
+const scrLogin = document.getElementById("screen-login");
+const scrUsername = document.getElementById("screen-username");
+const scrApp = document.getElementById("screen-app");
 
-/* Username ekranı yoksa eklemen GEREKİYOR */
-let usernameScreen = document.getElementById("usernameScreen");
+/* LOGIN */
+btnLogin.onclick = async () => {
+  await signInWithEmailAndPassword(
+    auth,
+    loginEmail.value,
+    loginPass.value
+  );
+};
 
-/* LOGIN UI */
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const loginBtn = document.getElementById("loginBtn");
-const registerBtn = document.getElementById("registerBtn");
+btnRegister.onclick = async () => {
+  await createUserWithEmailAndPassword(
+    auth,
+    loginEmail.value,
+    loginPass.value
+  );
+};
 
-/* UI helper */
-function hideAll() {
-  authScreen?.classList.add("hidden");
-  usernameScreen?.classList.add("hidden");
-  appRoot?.classList.add("hidden");
-}
-
-/* 🔥 TEK OTORİTE */
-onAuthStateChanged(auth, async (user) => {
-  hideAll();
+/* AUTH FLOW */
+onAuthStateChanged(auth, async user => {
+  scrLogin.classList.add("hidden");
+  scrUsername.classList.add("hidden");
+  scrApp.classList.add("hidden");
 
   if (!user) {
-    authScreen.classList.remove("hidden");
+    scrLogin.classList.remove("hidden");
     return;
   }
 
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
-  // Kullanıcı dokümanı yoksa oluştur
   if (!snap.exists()) {
-    await setDoc(ref, {
-      email: user.email,
-      createdAt: Date.now()
-    });
-    if (usernameScreen) {
-      usernameScreen.classList.remove("hidden");
-    }
+    await setDoc(ref, { email: user.email });
+    scrUsername.classList.remove("hidden");
     return;
   }
 
-  // Username yoksa
   if (!snap.data().username) {
-    if (usernameScreen) {
-      usernameScreen.classList.remove("hidden");
-    }
+    scrUsername.classList.remove("hidden");
     return;
   }
 
-  // 🔥 HER ŞEY TAMAM
-  appRoot.classList.remove("hidden");
+  scrApp.classList.remove("hidden");
+  loadRequests();
 });
 
-/* LOGIN */
-loginBtn.onclick = async () => {
-  error.textContent = "";
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      email.value.trim(),
-      password.value
-    );
-  } catch (e) {
-    error.textContent = e.code;
-  }
+/* USERNAME */
+btnSaveUsername.onclick = async () => {
+  await updateDoc(
+    doc(db, "users", auth.currentUser.uid),
+    { username: usernameInput.value }
+  );
 };
 
-/* REGISTER */
-registerBtn.onclick = async () => {
-  error.textContent = "";
-  try {
-    await createUserWithEmailAndPassword(
-      auth,
-      email.value.trim(),
-      password.value
-    );
-  } catch (e) {
-    error.textContent = e.code;
-  }
+/* FRIEND REQUEST */
+btnSendRequest.onclick = async () => {
+  const q = query(
+    collection(db, "users"),
+    where("username", "==", friendUsername.value)
+  );
+
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+
+  await addDoc(collection(db, "friend_requests"), {
+    from: auth.currentUser.uid,
+    to: snap.docs[0].id
+  });
+};
+
+/* LOAD REQUESTS */
+function loadRequests() {
+  const q = query(
+    collection(db, "friend_requests"),
+    where("to", "==", auth.currentUser.uid)
+  );
+
+  onSnapshot(q, snap => {
+    requests.innerHTML = "";
+    snap.forEach(d => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <span>Arkadaş isteği</span>
+        <button onclick="accept('${d.id}')">Kabul</button>
+      `;
+      requests.appendChild(div);
+    });
+  });
+}
+
+window.accept = async (id) => {
+  await deleteDoc(doc(db, "friend_requests", id));
 };
