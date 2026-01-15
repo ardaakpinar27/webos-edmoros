@@ -3,62 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <title>EdMessenger</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, Arial;
+  }
+  body {
+    margin: 0;
+    background: #f5f5f5;
+  }
+  .screen {
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .hidden {
+    display: none;
+  }
+  h1, h2 {
+    text-align: center;
+    color: #1e90ff;
+  }
+  input, button {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+  }
+  button {
+    background: #1e90ff;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+  .secondary {
+    background: #eee;
+    color: #333;
+  }
+  .error {
+    color: #e53935;
+    font-size: 14px;
+    text-align: center;
+  }
+</style>
 </head>
 
 <body>
 
-<div id="root">
+<!-- LOGIN -->
+<section id="loginScreen" class="screen">
+  <h1>EdMessenger</h1>
+  <input id="email" placeholder="E-posta">
+  <input id="password" type="password" placeholder="Şifre">
+  <button id="loginBtn">Giriş Yap</button>
+  <button id="registerBtn" class="secondary">Kayıt Ol</button>
+  <p id="loginError" class="error"></p>
+</section>
 
-  <!-- LOGIN -->
-  <section id="screen-login" class="screen">
-    <h1>EdMessenger</h1>
-    <input id="loginEmail" placeholder="E-posta">
-    <input id="loginPass" type="password" placeholder="Şifre">
-    <button id="btnLogin">Giriş Yap</button>
-    <button id="btnRegister">Kayıt Ol</button>
-    <p id="loginError"></p>
-  </section>
+<!-- USERNAME -->
+<section id="usernameScreen" class="screen hidden">
+  <h2>Kullanıcı Adı</h2>
+  <input id="usernameInput" placeholder="username">
+  <button id="saveUsernameBtn">Devam</button>
+  <p id="usernameError" class="error"></p>
+</section>
 
-  <!-- USERNAME -->
-  <section id="screen-username" class="screen hidden">
-    <h2>Kullanıcı Adı Seç</h2>
-    <input id="usernameInput" placeholder="username">
-    <button id="btnSaveUsername">Devam</button>
-    <p id="usernameError"></p>
-  </section>
-
-  <!-- APP -->
-  <section id="screen-app" class="screen hidden">
-
-    <header>EdMessenger</header>
-
-    <nav>
-      <button data-tab="chats">Sohbetler</button>
-      <button data-tab="friends">Arkadaşlar</button>
-    </nav>
-
-    <main>
-      <!-- CHATS -->
-      <div id="tab-chats" class="tab">
-        <p>Henüz sohbet yok</p>
-      </div>
-
-      <!-- FRIENDS -->
-      <div id="tab-friends" class="tab hidden">
-        <h3>Arkadaş Ekle</h3>
-        <input id="friendUsername" placeholder="username">
-        <button id="btnSendRequest">İstek Gönder</button>
-
-        <h3>Gelen İstekler</h3>
-        <div id="requests"></div>
-      </div>
-    </main>
-
-  </section>
-
-</div>
+<!-- APP -->
+<section id="appScreen" class="screen hidden">
+  <h2>Hoş geldin 👋</h2>
+  <p>Buradan sonra sohbetler, arkadaşlar vb. gelecek.</p>
+</section>
 
 <script type="module" src="app.js"></script>
 </body>

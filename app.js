@@ -1,25 +1,19 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore,
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  collection,
-  addDoc,
-  query,
-  where,
-  onSnapshot,
-  deleteDoc
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* FIREBASE */
+/* FIREBASE CONFIG — SENİN VERDİĞİN */
 const firebaseConfig = {
   apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
   authDomain: "olednote.firebaseapp.com",
@@ -29,40 +23,42 @@ const firebaseConfig = {
   appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
 };
 
+/* INIT */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 /* SCREENS */
-const scrLogin = document.getElementById("screen-login");
-const scrUsername = document.getElementById("screen-username");
-const scrApp = document.getElementById("screen-app");
+const loginScreen = document.getElementById("loginScreen");
+const usernameScreen = document.getElementById("usernameScreen");
+const appScreen = document.getElementById("appScreen");
 
-/* LOGIN */
-btnLogin.onclick = async () => {
-  await signInWithEmailAndPassword(
-    auth,
-    loginEmail.value,
-    loginPass.value
-  );
-};
+/* INPUTS */
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const usernameInput = document.getElementById("usernameInput");
 
-btnRegister.onclick = async () => {
-  await createUserWithEmailAndPassword(
-    auth,
-    loginEmail.value,
-    loginPass.value
-  );
-};
+/* ERRORS */
+const loginError = document.getElementById("loginError");
+const usernameError = document.getElementById("usernameError");
 
-/* AUTH FLOW */
-onAuthStateChanged(auth, async user => {
-  scrLogin.classList.add("hidden");
-  scrUsername.classList.add("hidden");
-  scrApp.classList.add("hidden");
+/* BUTTONS */
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const saveUsernameBtn = document.getElementById("saveUsernameBtn");
 
+/* UI HELPER */
+function show(screen) {
+  loginScreen.classList.add("hidden");
+  usernameScreen.classList.add("hidden");
+  appScreen.classList.add("hidden");
+  screen.classList.remove("hidden");
+}
+
+/* AUTH STATE — TEK OTORİTE */
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    scrLogin.classList.remove("hidden");
+    show(loginScreen);
     return;
   }
 
@@ -71,63 +67,61 @@ onAuthStateChanged(auth, async user => {
 
   if (!snap.exists()) {
     await setDoc(ref, { email: user.email });
-    scrUsername.classList.remove("hidden");
+    show(usernameScreen);
     return;
   }
 
   if (!snap.data().username) {
-    scrUsername.classList.remove("hidden");
+    show(usernameScreen);
     return;
   }
 
-  scrApp.classList.remove("hidden");
-  loadRequests();
+  show(appScreen);
 });
 
-/* USERNAME */
-btnSaveUsername.onclick = async () => {
+/* LOGIN */
+loginBtn.onclick = async () => {
+  loginError.textContent = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      email.value.trim(),
+      password.value
+    );
+  } catch (e) {
+    loginError.textContent = e.code;
+  }
+};
+
+/* REGISTER */
+registerBtn.onclick = async () => {
+  loginError.textContent = "";
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      email.value.trim(),
+      password.value
+    );
+  } catch (e) {
+    loginError.textContent = e.code;
+  }
+};
+
+/* SAVE USERNAME */
+saveUsernameBtn.onclick = async () => {
+  usernameError.textContent = "";
+  const username = usernameInput.value.trim().toLowerCase();
+
+  if (username.length < 3) {
+    usernameError.textContent = "En az 3 karakter";
+    return;
+  }
+
   await updateDoc(
     doc(db, "users", auth.currentUser.uid),
-    { username: usernameInput.value }
-  );
-};
-
-/* FRIEND REQUEST */
-btnSendRequest.onclick = async () => {
-  const q = query(
-    collection(db, "users"),
-    where("username", "==", friendUsername.value)
+    { username }
   );
 
-  const snap = await getDocs(q);
-  if (snap.empty) return;
-
-  await addDoc(collection(db, "friend_requests"), {
-    from: auth.currentUser.uid,
-    to: snap.docs[0].id
-  });
-};
-
-/* LOAD REQUESTS */
-function loadRequests() {
-  const q = query(
-    collection(db, "friend_requests"),
-    where("to", "==", auth.currentUser.uid)
-  );
-
-  onSnapshot(q, snap => {
-    requests.innerHTML = "";
-    snap.forEach(d => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <span>Arkadaş isteği</span>
-        <button onclick="accept('${d.id}')">Kabul</button>
-      `;
-      requests.appendChild(div);
-    });
-  });
-}
-
-window.accept = async (id) => {
-  await deleteDoc(doc(db, "friend_requests", id));
+  // 🔥 Manuel geçiş (auth state değişmez)
+  show(appScreen);
 };
