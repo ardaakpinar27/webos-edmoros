@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OLED Notlarım</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="authContainer" class="auth-page">
+        <h1 class="auth-title">OLED Notes</h1>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="E-posta">
+            <input type="password" id="password" placeholder="Şifre">
+        </div>
+        <div class="auth-buttons">
+            <button id="btnLogin">Giriş Yap</button>
+            <button id="btnRegister" class="secondary">Kayıt Ol</button>
+        </div>
+    </div>
+
+    <div id="appContainer" style="display: none;">
+        <header class="header">
+            <button id="btnLogout" class="header-link">Çıkış</button>
+            <h1 class="header-title">Notlarım</h1>
+            <button id="openModal" class="add-btn">+</button>
+        </header>
+
+        <main id="notesContainer" class="notes-list">
+            </main>
+    </div>
+
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" id="cancelNote">Vazgeç</button>
+                <button id="saveNote" class="save-btn">Bitti</button>
+            </div>
+            <input type="text" id="noteTitle" placeholder="Başlık" autocomplete="off">
+            <textarea id="noteText" placeholder="Bir şeyler yazın..."></textarea>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
