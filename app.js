@@ -8,9 +8,11 @@ const firebaseConfig = {
     projectId: "olednote",
     storageBucket: "olednote.firebasestorage.app",
     messagingSenderId: "797084747250",
-    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
+    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b",
+    measurementId: "G-P5TLYFRLCZ"
 };
 
+// Başlatma
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -19,65 +21,99 @@ const notesCol = collection(db, "notes");
 let currentUser = null;
 let currentEditingId = null;
 
-// --- AUTH YÖNETİMİ ---
+// ELEMENTLER
+const authContainer = document.getElementById("authContainer");
+const appContainer = document.getElementById("appContainer");
+const modal = document.getElementById("noteModal");
+const titleIn = document.getElementById("noteTitle");
+const textIn = document.getElementById("noteText");
+const container = document.getElementById("notesContainer");
+
+// --- OTURUM YÖNETİMİ ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
-        document.getElementById("authContainer").style.display = "none";
-        document.getElementById("appContainer").style.display = "block";
+        authContainer.style.display = "none";
+        appContainer.style.display = "block";
         loadNotes();
     } else {
         currentUser = null;
-        document.getElementById("authContainer").style.display = "flex";
-        document.getElementById("appContainer").style.display = "none";
+        authContainer.style.display = "flex";
+        appContainer.style.display = "none";
     }
 });
 
+// KAYIT OL
 document.getElementById("btnRegister").onclick = () => {
     const e = document.getElementById("email").value;
     const p = document.getElementById("password").value;
-    createUserWithEmailAndPassword(auth, e, p).catch(err => alert("Kayıt Hatası: " + err.message));
+    if(!e || !p) return alert("E-posta ve şifre girin");
+    createUserWithEmailAndPassword(auth, e, p)
+        .catch(err => alert("Kayıt Hatası: " + err.message));
 };
 
+// GİRİŞ YAP
 document.getElementById("btnLogin").onclick = () => {
     const e = document.getElementById("email").value;
     const p = document.getElementById("password").value;
-    signInWithEmailAndPassword(auth, e, p).catch(err => alert("Giriş Hatası: " + err.message));
+    if(!e || !p) return alert("E-posta ve şifre girin");
+    signInWithEmailAndPassword(auth, e, p)
+        .catch(err => alert("Giriş Hatası: " + err.message));
 };
 
+// ÇIKIŞ YAP
 document.getElementById("btnLogout").onclick = () => signOut(auth);
 
-// --- NOT YÖNETİMİ ---
-const modal = document.getElementById("noteModal");
-const titleInput = document.getElementById("noteTitle");
-const textInput = document.getElementById("noteText");
-
+// --- NOT İŞLEMLERİ ---
 document.getElementById("openModal").onclick = () => {
-    currentEditingId = null; titleInput.value = ""; textInput.value = ""; modal.style.display = "block";
+    currentEditingId = null; 
+    titleIn.value = ""; 
+    textIn.value = ""; 
+    modal.style.display = "block";
 };
 
 document.getElementById("cancelNote").onclick = () => modal.style.display = "none";
 
+// KAYDET VE KAPAT
 document.getElementById("saveNote").onclick = async () => {
-    const title = titleInput.value.trim();
-    const text = textInput.value.trim();
-    if (!title && !text) { modal.style.display = "none"; return; }
+    const t = titleIn.value.trim();
+    const txt = textIn.value.trim();
+
+    if (!t && !txt) {
+        modal.style.display = "none";
+        return;
+    }
 
     try {
         if (currentEditingId) {
-            await updateDoc(doc(db, "notes", currentEditingId), { title, text });
+            await updateDoc(doc(db, "notes", currentEditingId), { 
+                title: t, 
+                text: txt 
+            });
         } else {
-            await addDoc(notesCol, { title, text, userId: currentUser.uid, timestamp: new Date() });
+            await addDoc(notesCol, { 
+                title: t, 
+                text: txt, 
+                userId: currentUser.uid, 
+                timestamp: new Date() 
+            });
         }
+    } catch (error) {
+        console.error("Kaydetme hatası:", error);
+        alert("Not kaydedilemedi!");
     } finally {
-        modal.style.display = "none"; // BİTTİ DERSEN BURASI KESİN ÇALIŞIR
+        modal.style.display = "none";
+        currentEditingId = null;
     }
 };
 
+// NOTLARI LİSTELE (2'li Grid)
 function loadNotes() {
+    if (!currentUser) return;
+    
     const q = query(notesCol, where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
+    
     onSnapshot(q, (snap) => {
-        const container = document.getElementById("notesContainer");
         container.innerHTML = "";
         snap.forEach(d => {
             const data = d.data();
@@ -85,23 +121,26 @@ function loadNotes() {
             card.className = "note-card";
             card.innerHTML = `<h3>${data.title || 'Başlıksız'}</h3><p>${data.text || ''}</p>`;
             
+            // Tıklayınca Düzenle
             card.onclick = () => {
                 currentEditingId = d.id;
-                titleInput.value = data.title;
-                textInput.value = data.text;
+                titleIn.value = data.title;
+                textIn.value = data.text;
                 modal.style.display = "block";
             };
             
-            // Uzun basınca silme
+            // Uzun Basınca Sil
             let timer;
             card.onmousedown = card.ontouchstart = () => {
                 timer = setTimeout(() => {
-                    if(confirm("Not silinsin mi?")) deleteDoc(doc(db, "notes", d.id));
+                    if(confirm("Bu not silinsin mi?")) deleteDoc(doc(db, "notes", d.id));
                 }, 800);
             };
             card.onmouseup = card.ontouchend = () => clearTimeout(timer);
 
             container.appendChild(card);
         });
+    }, (error) => {
+        console.error("Snapshot hatası:", error);
     });
 }
