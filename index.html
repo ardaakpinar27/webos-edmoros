@@ -4,85 +4,38 @@
 <meta charset="UTF-8">
 <title>EdMessenger</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
-    authDomain: "olednote.firebaseapp.com",
-    projectId: "olednote",
-    storageBucket: "olednote.firebasestorage.app",
-    messagingSenderId: "797084747250",
-    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  window.auth = getAuth(app);
-  window.db = getFirestore(app);
-</script>
 </head>
 
 <body>
 
-<!-- AUTH -->
-<div id="authScreen" class="overlay">
-  <div class="auth-box">
+<!-- LOGIN -->
+<div id="authScreen" class="screen screen-center">
+  <div class="card">
     <h1>EdMessenger</h1>
-    <input id="email" placeholder="E-posta">
-    <input id="password" type="password" placeholder="Şifre">
-    <button id="loginBtn" class="pill">Giriş Yap</button>
-    <button id="registerBtn" class="pill secondary">Kayıt Ol</button>
-    <p id="authError" class="error"></p>
-  </div>
-</div>
-
-<!-- USERNAME -->
-<div id="usernameScreen" class="overlay hidden">
-  <div class="auth-box">
-    <h2>Kullanıcı Adı</h2>
-    <input id="usernameInput" placeholder="username">
-    <button id="saveUsername" class="pill">Devam</button>
-    <p id="usernameError" class="error"></p>
+    <input placeholder="E-posta">
+    <input type="password" placeholder="Şifre">
+    <button class="primary">Giriş Yap</button>
+    <button class="secondary">Kayıt Ol</button>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="hidden">
+<div id="appRoot" class="screen hidden">
 
-<header class="topbar">EdMessenger</header>
+  <header class="header">EdMessenger</header>
 
-<main class="content">
-  <section id="chatsView" class="view active"></section>
+  <main class="main">
+    <div>İçerik buraya gelecek</div>
+  </main>
 
-  <section id="friendsView" class="view">
-    <h3>Gelen İstekler</h3>
-    <div id="requests"></div>
-
-    <h3>Arkadaş Ekle</h3>
-    <input id="searchUser" placeholder="username">
-    <button id="sendRequest" class="pill">İstek Gönder</button>
-    <p id="friendError" class="error"></p>
-  </section>
-
-  <section id="settingsView" class="view">
-    Ayarlar (şimdilik boş)
-  </section>
-</main>
-
-<footer class="navbar">
-  <button class="tab active" data-view="chatsView"><i class="fa fa-comments"></i></button>
-  <button class="tab" data-view="friendsView"><i class="fa fa-user-group"></i></button>
-  <button class="tab" data-view="settingsView"><i class="fa fa-gear"></i></button>
-</footer>
+  <footer class="footer">
+    <button>Chats</button>
+    <button>Friends</button>
+    <button>Settings</button>
+  </footer>
 
 </div>
 
-<script type="module" src="app.js"></script>
 </body>
 </html>
