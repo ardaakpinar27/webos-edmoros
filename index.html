@@ -1,48 +1,98 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OLED Notlarım</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<title>EdMessenger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- FIREBASE INIT -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
+    authDomain: "olednote.firebaseapp.com",
+    projectId: "olednote",
+    storageBucket: "olednote.firebasestorage.app",
+    messagingSenderId: "797084747250",
+    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.auth = getAuth(app);
+  window.db = getFirestore(app);
+</script>
 </head>
+
 <body>
 
-    <div id="authContainer" class="auth-page">
-        <h1 class="auth-title">OLED Notes</h1>
-        <div class="input-group">
-            <input type="email" id="email" placeholder="E-posta">
-            <input type="password" id="password" placeholder="Şifre">
-        </div>
-        <div class="auth-buttons">
-            <button id="btnLogin">Giriş Yap</button>
-            <button id="btnRegister" class="secondary">Kayıt Ol</button>
-        </div>
-    </div>
+<!-- AUTH -->
+<div id="authScreen" class="screen auth-screen">
+  <h1>EdMessenger</h1>
 
-    <div id="appContainer" style="display: none;">
-        <header class="header">
-            <button id="btnLogout" class="header-link">Çıkış</button>
-            <h1 class="header-title">Notlarım</h1>
-            <button id="openModal" class="add-btn">+</button>
-        </header>
+  <input id="authEmail" type="email" placeholder="E-posta">
+  <input id="authPass" type="password" placeholder="Şifre">
+  <input id="authPass2" type="password" placeholder="Şifre (Tekrar)" class="hidden">
 
-        <main id="notesContainer" class="notes-list">
-            </main>
-    </div>
+  <button id="loginBtn" class="pill-btn">Giriş Yap</button>
+  <button id="registerBtn" class="pill-btn secondary">Kayıt Ol</button>
 
-    <div id="noteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close-btn" id="cancelNote">Vazgeç</button>
-                <button id="saveNote" class="save-btn">Bitti</button>
-            </div>
-            <input type="text" id="noteTitle" placeholder="Başlık" autocomplete="off">
-            <textarea id="noteText" placeholder="Bir şeyler yazın..."></textarea>
-        </div>
-    </div>
+  <p id="authError" class="auth-error"></p>
+</div>
 
-    <script type="module" src="app.js"></script>
+<!-- USERNAME -->
+<div id="usernameScreen" class="screen auth-screen hidden">
+  <h2>Kullanıcı Adı Seç</h2>
+
+  <input id="usernameInput" type="text" placeholder="username">
+  <button id="saveUsernameBtn" class="pill-btn">Devam Et</button>
+
+  <p id="usernameError" class="auth-error"></p>
+</div>
+
+<!-- APP -->
+<div id="appRoot" class="screen hidden">
+
+  <header class="topbar" id="mainHeader">
+    <h1>EdMessenger</h1>
+  </header>
+
+  <header class="chat-header hidden" id="chatHeader">
+    <button id="backBtn"><i class="fa-solid fa-arrow-left"></i></button>
+    <span id="chatTitle"></span>
+    <div class="header-spacer"></div>
+  </header>
+
+  <main class="content">
+    <section id="chatsView" class="view active"></section>
+
+    <section id="friendsView" class="view">
+      <div class="friends-empty">
+        <div class="add-friend-pill">Arkadaş Ekle</div>
+      </div>
+    </section>
+
+    <section id="settingsView" class="view">
+      <div class="setting-item disabled">
+        <span>Karanlık Mod</span>
+        <span class="setting-note">Yakında</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="navbar">
+    <button class="tab active"><i class="fa-solid fa-comments"></i></button>
+    <button class="tab"><i class="fa-solid fa-user-group"></i></button>
+    <button class="tab"><i class="fa-solid fa-gear"></i></button>
+  </footer>
+
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>

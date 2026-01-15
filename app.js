@@ -1,142 +1,112 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Firebase Bilgilerin
-const firebaseConfig = {
-    apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
-    authDomain: "olednote.firebaseapp.com",
-    projectId: "olednote",
-    storageBucket: "olednote.firebasestorage.app",
-    messagingSenderId: "797084747250",
-    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
-};
+import {
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const notesCol = collection(db, "notes");
+/* ========== SCREENS ========== */
+const authScreen = document.getElementById("authScreen");
+const usernameScreen = document.getElementById("usernameScreen");
+const appRoot = document.getElementById("appRoot");
 
-let currentUser = null;
-let currentEditingId = null;
+/* ========== AUTH UI ========== */
+const emailInput = document.getElementById("authEmail");
+const passInput = document.getElementById("authPass");
+const pass2Input = document.getElementById("authPass2");
+const authError = document.getElementById("authError");
 
-// ELEMENTLER
-const authContainer = document.getElementById("authContainer");
-const appContainer = document.getElementById("appContainer");
-const modal = document.getElementById("noteModal");
-const titleIn = document.getElementById("noteTitle");
-const textIn = document.getElementById("noteText");
-const container = document.getElementById("notesContainer");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
 
-// --- OTURUM YÖNETİMİ ---
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUser = user;
-        authContainer.style.display = "none";
-        appContainer.style.display = "block";
-        loadNotes();
-    } else {
-        currentUser = null;
-        authContainer.style.display = "flex";
-        appContainer.style.display = "none";
-        container.innerHTML = "";
-    }
+/* ========== USERNAME UI ========== */
+const usernameInput = document.getElementById("usernameInput");
+const saveUsernameBtn = document.getElementById("saveUsernameBtn");
+const usernameError = document.getElementById("usernameError");
+
+/* ========== AUTH STATE FLOW ========== */
+onAuthStateChanged(window.auth, async (user) => {
+  authScreen.classList.add("hidden");
+  usernameScreen.classList.add("hidden");
+  appRoot.classList.add("hidden");
+
+  if (!user) {
+    authScreen.classList.remove("hidden");
+    return;
+  }
+
+  const userRef = doc(window.db, "users", user.uid);
+  const snap = await getDoc(userRef);
+
+  if (!snap.exists() || !snap.data().username) {
+    usernameScreen.classList.remove("hidden");
+  } else {
+    appRoot.classList.remove("hidden");
+  }
 });
 
-// KAYIT / GİRİŞ / ÇIKIŞ
-document.getElementById("btnRegister").onclick = () => {
-    const e = document.getElementById("email").value, p = document.getElementById("password").value;
-    if(!e || !p) return alert("Bilgileri girin");
-    createUserWithEmailAndPassword(auth, e, p).catch(err => alert("Kayıt Hatası: " + err.message));
+/* ========== LOGIN ========== */
+loginBtn.onclick = async () => {
+  authError.textContent = "";
+  try{
+    await signInWithEmailAndPassword(
+      window.auth,
+      emailInput.value,
+      passInput.value
+    );
+  }catch(e){
+    authError.textContent = e.message;
+  }
 };
 
-document.getElementById("btnLogin").onclick = () => {
-    const e = document.getElementById("email").value, p = document.getElementById("password").value;
-    if(!e || !p) return alert("Bilgileri girin");
-    signInWithEmailAndPassword(auth, e, p).catch(err => alert("Giriş Hatası: " + err.message));
+/* ========== REGISTER ========== */
+registerBtn.onclick = async () => {
+  authError.textContent = "";
+
+  if (pass2Input.classList.contains("hidden")) {
+    pass2Input.classList.remove("hidden");
+    return;
+  }
+
+  if (passInput.value !== pass2Input.value) {
+    authError.textContent = "Şifreler uyuşmuyor";
+    return;
+  }
+
+  try{
+    await createUserWithEmailAndPassword(
+      window.auth,
+      emailInput.value,
+      passInput.value
+    );
+  }catch(e){
+    authError.textContent = e.message;
+  }
 };
 
-document.getElementById("btnLogout").onclick = () => signOut(auth);
+/* ========== SAVE USERNAME ========== */
+saveUsernameBtn.onclick = async () => {
+  usernameError.textContent = "";
 
-// --- NOT İŞLEMLERİ ---
-document.getElementById("openModal").onclick = () => {
-    currentEditingId = null; 
-    titleIn.value = ""; 
-    textIn.value = ""; 
-    modal.style.display = "block";
+  const username = usernameInput.value.trim().toLowerCase();
+
+  if (username.length < 3) {
+    usernameError.textContent = "En az 3 karakter";
+    return;
+  }
+
+  try{
+    await setDoc(
+      doc(window.db, "users", window.auth.currentUser.uid),
+      { username },
+      { merge:true }
+    );
+  }catch(e){
+    usernameError.textContent = e.message;
+  }
 };
-
-document.getElementById("cancelNote").onclick = () => modal.style.display = "none";
-
-document.getElementById("saveNote").onclick = async () => {
-    const t = titleIn.value.trim();
-    const txt = textIn.value.trim();
-
-    if (!t && !txt) {
-        modal.style.display = "none";
-        return;
-    }
-
-    try {
-        if (currentEditingId) {
-            await updateDoc(doc(db, "notes", currentEditingId), { title: t, text: txt });
-        } else {
-            // Notu userId ile ilişkilendirerek kaydet
-            await addDoc(notesCol, { 
-                title: t, 
-                text: txt, 
-                userId: currentUser.uid, 
-                timestamp: new Date() 
-            });
-        }
-    } catch (err) {
-        console.error("Kayıt Hatası:", err);
-    } finally {
-        modal.style.display = "none";
-        currentEditingId = null;
-    }
-};
-
-// NOTLARI LİSTELE
-function loadNotes() {
-    if (!currentUser) return;
-
-    // ÖNEMLİ: Endeks hatasını önlemek için orderBy'ı şimdilik kaldırdık
-    const q = query(notesCol, where("userId", "==", currentUser.uid));
-
-    onSnapshot(q, (snap) => {
-        container.innerHTML = "";
-        
-        if (snap.empty) {
-            console.log("Henüz notunuz yok.");
-        }
-
-        snap.forEach(d => {
-            const data = d.data();
-            const card = document.createElement("div");
-            card.className = "note-card";
-            card.innerHTML = `<h3>${data.title || '...'}</h3><p>${data.text || ''}</p>`;
-            
-            // Düzenlemek için tıkla
-            card.onclick = () => {
-                currentEditingId = d.id;
-                titleIn.value = data.title;
-                textIn.value = data.text;
-                modal.style.display = "block";
-            };
-
-            // Uzun basınca silme (800ms)
-            let timer;
-            card.onmousedown = card.ontouchstart = () => {
-                timer = setTimeout(() => {
-                    if(confirm("Bu not silinsin mi?")) deleteDoc(doc(db, "notes", d.id));
-                }, 800);
-            };
-            card.onmouseup = card.ontouchend = () => clearTimeout(timer);
-
-            container.appendChild(card);
-        });
-    }, (error) => {
-        alert("Firestore Hatası: " + error.message);
-    });
-}
