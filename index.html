@@ -9,33 +9,23 @@
 
 <body>
 
-<!-- LOGIN -->
 <div id="authScreen" class="screen screen-center">
   <div class="card">
     <h1>EdMessenger</h1>
-    <input placeholder="E-posta">
-    <input type="password" placeholder="Şifre">
-    <button class="primary">Giriş Yap</button>
-    <button class="secondary">Kayıt Ol</button>
+    <input id="email" placeholder="E-posta">
+    <input id="password" type="password" placeholder="Şifre">
+    <button id="loginBtn" class="primary">Giriş Yap</button>
+    <button id="registerBtn" class="secondary">Kayıt Ol</button>
+    <p id="error" class="error"></p>
   </div>
 </div>
 
-<!-- APP -->
 <div id="appRoot" class="screen hidden">
-
   <header class="header">EdMessenger</header>
-
-  <main class="main">
-    <div>İçerik buraya gelecek</div>
-  </main>
-
-  <footer class="footer">
-    <button>Chats</button>
-    <button>Friends</button>
-    <button>Settings</button>
-  </footer>
-
+  <main class="main">Giriş başarılı ✅</main>
 </div>
 
+<!-- SADECE TEK MODULE -->
+<script type="module" src="app.js"></script>
 </body>
 </html>
