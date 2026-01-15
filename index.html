@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -31,15 +30,14 @@
 
 <body>
 
-<!-- LOGIN -->
+<!-- AUTH -->
 <div id="authScreen" class="overlay">
   <div class="auth-box">
     <h1>EdMessenger</h1>
-    <input id="authEmail" placeholder="E-posta">
-    <input id="authPass" type="password" placeholder="Şifre">
-    <input id="authPass2" type="password" placeholder="Şifre (Tekrar)" class="hidden">
-    <button id="loginBtn" class="pill-btn">Giriş Yap</button>
-    <button id="registerBtn" class="pill-btn secondary">Kayıt Ol</button>
+    <input id="email" placeholder="E-posta">
+    <input id="password" type="password" placeholder="Şifre">
+    <button id="loginBtn" class="pill">Giriş Yap</button>
+    <button id="registerBtn" class="pill secondary">Kayıt Ol</button>
     <p id="authError" class="error"></p>
   </div>
 </div>
@@ -49,66 +47,40 @@
   <div class="auth-box">
     <h2>Kullanıcı Adı</h2>
     <input id="usernameInput" placeholder="username">
-    <button id="saveUsernameBtn" class="pill-btn">Devam</button>
+    <button id="saveUsername" class="pill">Devam</button>
     <p id="usernameError" class="error"></p>
   </div>
 </div>
 
 <!-- APP -->
-<div id="appRoot" class="hidden">
+<div id="app" class="hidden">
 
-  <header class="topbar">
-    <h1>EdMessenger</h1>
-  </header>
+<header class="topbar">EdMessenger</header>
 
-  <main class="content">
+<main class="content">
+  <section id="chatsView" class="view active"></section>
 
-    <!-- CHATS -->
-    <section id="chatsView" class="view active">
-      <!-- sohbetler -->
-    </section>
+  <section id="friendsView" class="view">
+    <h3>Gelen İstekler</h3>
+    <div id="requests"></div>
 
-    <!-- FRIENDS -->
-    <section id="friendsView" class="view">
-      <div class="friends-empty">
-        <div id="openAddFriend" class="add-friend-pill">
-          Arkadaş Ekle
-        </div>
-      </div>
-    </section>
-
-    <!-- SETTINGS -->
-    <section id="settingsView" class="view">
-      <div class="setting-item disabled">
-        Karanlık Mod (yakında)
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="navbar">
-    <button class="tab active" data-view="chatsView">
-      <i class="fa-solid fa-comments"></i>
-    </button>
-    <button class="tab" data-view="friendsView">
-      <i class="fa-solid fa-user-group"></i>
-    </button>
-    <button class="tab" data-view="settingsView">
-      <i class="fa-solid fa-gear"></i>
-    </button>
-  </footer>
-
-</div>
-
-<!-- ADD FRIEND MODAL -->
-<div id="addFriendModal" class="modal hidden">
-  <div class="modal-box">
     <h3>Arkadaş Ekle</h3>
-    <input id="searchUsername" placeholder="username">
-    <button id="sendRequestBtn" class="pill-btn">İstek Gönder</button>
+    <input id="searchUser" placeholder="username">
+    <button id="sendRequest" class="pill">İstek Gönder</button>
     <p id="friendError" class="error"></p>
-    <button id="closeModal" class="close-btn">Kapat</button>
-  </div>
+  </section>
+
+  <section id="settingsView" class="view">
+    Ayarlar (şimdilik boş)
+  </section>
+</main>
+
+<footer class="navbar">
+  <button class="tab active" data-view="chatsView"><i class="fa fa-comments"></i></button>
+  <button class="tab" data-view="friendsView"><i class="fa fa-user-group"></i></button>
+  <button class="tab" data-view="settingsView"><i class="fa fa-gear"></i></button>
+</footer>
+
 </div>
 
 <script type="module" src="app.js"></script>

@@ -5,129 +5,95 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  serverTimestamp
+  doc,getDoc,setDoc,updateDoc,
+  collection,addDoc,query,where,onSnapshot,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ================= ELEMENTS ================= */
-const authScreen = document.getElementById("authScreen");
+/* ELEMENTS */
+const auth = authScreen;
 const usernameScreen = document.getElementById("usernameScreen");
-const appRoot = document.getElementById("appRoot");
+const app = document.getElementById("app");
 
-const emailInput = document.getElementById("authEmail");
-const passInput = document.getElementById("authPass");
-const pass2Input = document.getElementById("authPass2");
-const authError = document.getElementById("authError");
+/* AUTH */
+loginBtn.onclick = async()=>{
+  try{
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+  }catch(e){ authError.textContent=e.code; }
+};
 
-const usernameInput = document.getElementById("usernameInput");
-const usernameError = document.getElementById("usernameError");
-const saveUsernameBtn = document.getElementById("saveUsernameBtn");
+registerBtn.onclick = async()=>{
+  try{
+    await createUserWithEmailAndPassword(auth, email.value, password.value);
+  }catch(e){ authError.textContent=e.code; }
+};
 
-/* ================= UI HELPERS ================= */
-function hideAll() {
-  authScreen.classList.add("hidden");
+/* AUTH STATE – TEK OTORİTE */
+onAuthStateChanged(window.auth, async user=>{
+  auth.classList.add("hidden");
   usernameScreen.classList.add("hidden");
-  appRoot.classList.add("hidden");
-}
+  app.classList.add("hidden");
 
-/* ================= AUTH STATE (TEK KAYNAK) ================= */
-onAuthStateChanged(window.auth, async (user) => {
-  hideAll();
+  if(!user){ auth.classList.remove("hidden"); return; }
 
-  if (!user) {
-    authScreen.classList.remove("hidden");
-    return;
-  }
+  const ref=doc(db,"users",user.uid);
+  const snap=await getDoc(ref);
 
-  const ref = doc(window.db, "users", user.uid);
-  const snap = await getDoc(ref);
-
-  // Kullanıcı dokümanı YOKSA → oluştur
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      email: user.email,
-      createdAt: serverTimestamp()
-    });
+  if(!snap.exists()){
+    await setDoc(ref,{email:user.email});
     usernameScreen.classList.remove("hidden");
     return;
   }
 
-  // Username yoksa
-  if (!snap.data().username) {
+  if(!snap.data().username){
     usernameScreen.classList.remove("hidden");
-    return;
+  }else{
+    app.classList.remove("hidden");
+    loadRequests();
   }
-
-  // Her şey tamam
-  appRoot.classList.remove("hidden");
 });
 
-/* ================= LOGIN ================= */
-loginBtn.onclick = async () => {
-  authError.textContent = "";
-  try {
-    await signInWithEmailAndPassword(
-      window.auth,
-      emailInput.value.trim(),
-      passInput.value
-    );
-    // UI burada ASLA elle değişmez
-  } catch (e) {
-    authError.textContent = e.code;
-  }
+/* SAVE USERNAME */
+saveUsername.onclick = async()=>{
+  await updateDoc(doc(db,"users",auth.currentUser.uid),{
+    username:usernameInput.value.toLowerCase()
+  });
 };
 
-/* ================= REGISTER ================= */
-registerBtn.onclick = async () => {
-  authError.textContent = "";
-
-  if (pass2Input.classList.contains("hidden")) {
-    pass2Input.classList.remove("hidden");
-    return;
-  }
-
-  if (passInput.value !== pass2Input.value) {
-    authError.textContent = "Şifreler uyuşmuyor";
-    return;
-  }
-
-  try {
-    await createUserWithEmailAndPassword(
-      window.auth,
-      emailInput.value.trim(),
-      passInput.value
-    );
-    // UI burada ASLA elle değişmez
-  } catch (e) {
-    authError.textContent = e.code;
-  }
+/* FRIEND REQUESTS */
+sendRequest.onclick = async()=>{
+  const q=query(collection(db,"users"),where("username","==",searchUser.value));
+  const s=await getDocs(q);
+  if(s.empty){friendError.textContent="Yok";return;}
+  await addDoc(collection(db,"friend_requests"),{
+    from:auth.currentUser.uid,to:s.docs[0].id
+  });
 };
 
-/* ================= SAVE USERNAME ================= */
-saveUsernameBtn.onclick = async () => {
-  usernameError.textContent = "";
-  const username = usernameInput.value.trim().toLowerCase();
+/* LOAD REQUESTS */
+function loadRequests(){
+  const q=query(collection(db,"friend_requests"),where("to","==",auth.currentUser.uid));
+  onSnapshot(q,snap=>{
+    requests.innerHTML="";
+    snap.forEach(d=>{
+      const div=document.createElement("div");
+      div.className="request";
+      div.innerHTML=`<span>Yeni İstek</span>
+      <button onclick="accept('${d.id}')">Kabul</button>`;
+      requests.appendChild(div);
+    });
+  });
+}
 
-  if (username.length < 3) {
-    usernameError.textContent = "En az 3 karakter";
-    return;
-  }
-
-  try {
-    await updateDoc(
-      doc(window.db, "users", window.auth.currentUser.uid),
-      { username }
-    );
-    // UI yine onAuthStateChanged tarafından yönetilecek
-  } catch (e) {
-    usernameError.textContent = "Kaydedilemedi";
-  }
+window.accept=async(id)=>{
+  await deleteDoc(doc(db,"friend_requests",id));
 };
+
+/* NAV */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById(t.dataset.view).classList.add("active");
+  }
+});
