@@ -19,7 +19,7 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* FIREBASE CONFIG */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
   authDomain: "olednote.firebaseapp.com",
@@ -29,7 +29,6 @@ const firebaseConfig = {
   appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
 };
 
-/* INIT */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -37,16 +36,23 @@ const db = getFirestore(app);
 /* ELEMENTS */
 const loginScreen = document.getElementById("loginScreen");
 const appScreen = document.getElementById("appScreen");
+
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 const loginError = document.getElementById("loginError");
+
+const tabChats = document.getElementById("tabChats");
+const tabFriends = document.getElementById("tabFriends");
+
+const btnChats = document.getElementById("btnChats");
+const btnFriends = document.getElementById("btnFriends");
 
 const friendUsername = document.getElementById("friendUsername");
 const friendError = document.getElementById("friendError");
 const requestsDiv = document.getElementById("requests");
 
 /* AUTH */
-loginBtn.onclick = async () => {
+document.getElementById("loginBtn").onclick = async () => {
   loginError.textContent = "";
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value);
@@ -55,7 +61,7 @@ loginBtn.onclick = async () => {
   }
 };
 
-registerBtn.onclick = async () => {
+document.getElementById("registerBtn").onclick = async () => {
   loginError.textContent = "";
   try {
     await createUserWithEmailAndPassword(auth, email.value, password.value);
@@ -89,23 +95,26 @@ btnChats.onclick = () => {
   tabChats.classList.add("active");
   tabFriends.classList.remove("active");
 };
+
 btnFriends.onclick = () => {
   tabFriends.classList.add("active");
   tabChats.classList.remove("active");
 };
 
 /* SEND FRIEND REQUEST */
-sendRequestBtn.onclick = async () => {
+document.getElementById("sendRequestBtn").onclick = async () => {
   friendError.textContent = "";
   const q = query(
     collection(db, "users"),
-    where("username", "==", friendUsername.value)
+    where("username", "==", friendUsername.value.trim())
   );
+
   const snap = await getDocs(q);
   if (snap.empty) {
     friendError.textContent = "Kullanıcı bulunamadı";
     return;
   }
+
   await addDoc(collection(db, "friend_requests"), {
     from: auth.currentUser.uid,
     to: snap.docs[0].id
@@ -118,6 +127,7 @@ function loadRequests() {
     collection(db, "friend_requests"),
     where("to", "==", auth.currentUser.uid)
   );
+
   onSnapshot(q, snap => {
     requestsDiv.innerHTML = "";
     snap.forEach(d => {
@@ -125,13 +135,12 @@ function loadRequests() {
       div.className = "request";
       div.innerHTML = `
         <span>Arkadaş isteği</span>
-        <button onclick="accept('${d.id}')">Kabul</button>
+        <button data-id="${d.id}">Kabul</button>
       `;
+      div.querySelector("button").onclick = async () => {
+        await deleteDoc(doc(db, "friend_requests", d.id));
+      };
       requestsDiv.appendChild(div);
     });
   });
 }
-
-window.accept = async (id) => {
-  await deleteDoc(doc(db, "friend_requests", id));
-};
