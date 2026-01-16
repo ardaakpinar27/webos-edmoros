@@ -3,87 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <title>EdMessenger</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box;font-family:system-ui}
-body{margin:0;background:#f5f5f5}
-.hidden{display:none}
-.screen{min-height:100vh;padding:20px}
-input,button{
-  width:100%;padding:14px;margin-bottom:10px;
-  border-radius:12px;border:1px solid #ddd;font-size:16px
+:root {
+  --primary: #075E54; /* WhatsApp Koyu Yeşil */
+  --secondary: #128C7E; /* WhatsApp Açık Yeşil */
+  --accent: #25D366; /* Parlak Yeşil */
+  --bg: #e5ddd5; /* Sohbet Arkaplanı */
+  --white: #ffffff;
+  --gray: #f0f2f5;
+  --text: #111b21;
 }
-button{background:#1e90ff;color:#fff;border:none;font-weight:600}
-.secondary{background:#eee;color:#000}
-.error{color:#e53935;text-align:center}
 
-/* APP */
-#appScreen{padding-bottom:60px}
-header{
-  position:fixed;top:0;width:100%;height:56px;
-  background:#fff;border-bottom:1px solid #ddd;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:600;color:#1e90ff;z-index:10
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { margin: 0; background: #d1d7db; color: var(--text); height: 100vh; overflow: hidden; }
+
+/* UTILS */
+.hidden { display: none !important; }
+.btn { width: 100%; padding: 12px; border-radius: 24px; border: none; font-weight: 600; cursor: pointer; font-size: 15px; transition: 0.2s; }
+.btn-primary { background: var(--secondary); color: white; }
+.btn-primary:active { background: var(--primary); }
+.btn-text { background: transparent; color: var(--secondary); margin-top: 10px; }
+.input-group { margin-bottom: 12px; }
+input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 16px; }
+input:focus { border-color: var(--secondary); }
+
+/* LOGIN SCREEN */
+#loginScreen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100vh; background: var(--gray); padding: 20px;
 }
-main{
-  margin-top:56px;
-  padding:16px;
+.auth-card {
+  background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;
 }
-footer{
-  position:fixed;bottom:0;width:100%;height:60px;
-  background:#fff;border-top:1px solid #ddd;
-  display:flex
+.logo { font-size: 32px; color: var(--primary); font-weight: bold; margin-bottom: 20px; display: block; }
+.error { color: #d32f2f; font-size: 13px; margin-top: 5px; min-height: 20px; }
+
+/* APP SCREEN */
+#appScreen { display: flex; flex-direction: column; height: 100%; background: white; max-width: 480px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
+
+/* HEADER */
+header {
+  background: var(--primary); color: white; padding: 16px; 
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
 }
-footer button{
-  flex:1;background:none;border:none;font-size:14px
+header h1 { margin: 0; font-size: 20px; font-weight: 500; }
+.logout-btn { background: none; border: none; color: white; cursor: pointer; }
+
+/* MAIN CONTENT */
+main { flex: 1; overflow-y: auto; background: white; position: relative; }
+
+/* TABS */
+.tab { display: none; padding: 0; }
+.tab.active { display: block; }
+
+/* LIST ITEMS (Chats & Friends) */
+.list-item {
+  display: flex; align-items: center; padding: 12px 16px;
+  border-bottom: 1px solid #f0f2f5; cursor: pointer;
 }
-.tab{display:none}
-.tab.active{display:block}
-.request{
-  background:#fff;padding:10px;border-radius:10px;margin-bottom:8px
+.list-item:hover { background: #f5f6f6; }
+.avatar {
+  width: 48px; height: 48px; background: #ddd; border-radius: 50%; 
+  margin-right: 15px; display: flex; align-items: center; justify-content: center;
+  color: #555; font-size: 20px;
 }
+.info { flex: 1; }
+.info h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 500; color: #111; }
+.info p { margin: 0; font-size: 14px; color: #667781; }
+
+/* FOOTER NAV */
+footer {
+  background: white; border-top: 1px solid #ddd; height: 60px;
+  display: flex; align-items: center; justify-content: space-around;
+}
+.nav-btn {
+  background: none; border: none; display: flex; flex-direction: column;
+  align-items: center; color: #54656f; font-size: 12px; flex: 1; padding: 8px 0;
+}
+.nav-btn span { font-size: 24px; margin-bottom: 2px; }
+.nav-btn.active { color: var(--primary); }
+
+/* ADD FRIEND SECTION */
+.friend-search-box { padding: 16px; background: #f0f2f5; }
+.request-card {
+  padding: 12px; margin: 10px 16px; background: #e7fce3; 
+  border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
+}
+.request-card button { padding: 6px 12px; font-size: 13px; width: auto; }
+
 </style>
 </head>
-
 <body>
 
-<!-- LOGIN -->
-<section id="loginScreen" class="screen">
-  <h1>EdMessenger</h1>
-  <input id="email" placeholder="E-posta">
-  <input id="password" type="password" placeholder="Şifre">
-  <button id="loginBtn">Giriş Yap</button>
-  <button id="registerBtn" class="secondary">Kayıt Ol</button>
-  <p id="loginError" class="error"></p>
+<section id="loginScreen">
+  <div class="auth-card">
+    <span class="logo">EdMessenger</span>
+    
+    <div id="loginForm">
+      <div class="input-group">
+        <input id="loginEmail" type="email" placeholder="E-posta adresi">
+      </div>
+      <div class="input-group">
+        <input id="loginPassword" type="password" placeholder="Şifre">
+      </div>
+      <button id="btnLoginAction" class="btn btn-primary">Giriş Yap</button>
+      <button id="btnSwitchToRegister" class="btn btn-text">Hesabın yok mu? Kayıt Ol</button>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <div class="input-group">
+        <input id="regUsername" type="text" placeholder="Kullanıcı Adı (Benzersiz)">
+      </div>
+      <div class="input-group">
+        <input id="regEmail" type="email" placeholder="E-posta adresi">
+      </div>
+      <div class="input-group">
+        <input id="regPassword" type="password" placeholder="Şifre (Min 6 karakter)">
+      </div>
+      <button id="btnRegisterAction" class="btn btn-primary">Kayıt Ol</button>
+      <button id="btnSwitchToLogin" class="btn btn-text">Zaten hesabın var mı? Giriş Yap</button>
+    </div>
+
+    <p id="authError" class="error"></p>
+  </div>
 </section>
 
-<!-- APP -->
 <section id="appScreen" class="hidden">
-
-  <header>EdMessenger</header>
+  <header>
+    <h1>EdMessenger</h1>
+    <button id="btnLogout" class="logout-btn"><span class="material-icons">logout</span></button>
+  </header>
 
   <main>
     <div id="tabChats" class="tab active">
-      <p>Henüz sohbet yok</p>
+      <div id="chatList">
+        <div style="padding:20px; text-align:center; color:#888; margin-top:50px;">
+          <span class="material-icons" style="font-size:48px;">chat_bubble_outline</span>
+          <p>Henüz sohbet yok.<br>Arkadaş ekleyerek başla!</p>
+        </div>
+      </div>
     </div>
 
     <div id="tabFriends" class="tab">
-      <h3>Arkadaş Ekle</h3>
-      <input id="friendUsername" placeholder="username">
-      <button id="sendRequestBtn">İstek Gönder</button>
-      <p id="friendError" class="error"></p>
+      <div class="friend-search-box">
+        <div style="display:flex; gap:10px;">
+          <input id="friendUsernameInput" placeholder="Kullanıcı adı ara...">
+          <button id="btnAddFriend" style="width:auto; margin:0;" class="btn btn-primary"><span class="material-icons">person_add</span></button>
+        </div>
+        <p id="friendError" class="error" style="text-align:left; padding-left:5px;"></p>
+      </div>
 
-      <h3>Gelen İstekler</h3>
-      <div id="requests"></div>
+      <h4 style="margin: 10px 16px; color:var(--primary);">Gelen İstekler</h4>
+      <div id="requestsList"></div>
+
+      <h4 style="margin: 10px 16px; color:#54656f;">Tüm Kişiler</h4>
+      <div id="friendsList">
+        </div>
     </div>
   </main>
 
   <footer>
-    <button id="btnChats">Sohbetler</button>
-    <button id="btnFriends">Arkadaşlar</button>
+    <button id="navChats" class="nav-btn active">
+      <span class="material-icons">chat</span>
+      Sohbetler
+    </button>
+    <button id="navFriends" class="nav-btn">
+      <span class="material-icons">people</span>
+      Kişiler
+    </button>
   </footer>
-
 </section>
 
 <script type="module" src="app.js"></script>
