@@ -122,7 +122,6 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
     <span class="link" onclick="resetPassword()" style="font-size:13px; color:#888; margin-top:10px;">Şifremi Unuttum</span>
     <p id="errorLog" style="color:red; font-size:13px; margin-top:10px;"></p>
   </div>
-  
   <div class="auth-box hidden" id="registerBox">
     <h2>Kayıt Ol</h2>
     <input id="rUser" type="text" placeholder="Kullanıcı Adı">
@@ -236,33 +235,21 @@ window.visualViewport.addEventListener('resize', () => {
   }
 });
 
-/* 2. AUTH & DOĞRULAMA KONTROLÜ */
+/* 2. AUTH (DOĞRULAMA ZORUNLULUĞU KALDIRILDI) */
 function toRegister() { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('registerBox').classList.remove('hidden'); }
 function toLogin() { document.getElementById('registerBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
 
-// ŞİFRE SIFIRLAMA
 function resetPassword() {
   const e = document.getElementById('email').value;
   if(!e) return alert("Lütfen önce E-posta kutusunu doldurun.");
-  auth.sendPasswordResetEmail(e)
-    .then(() => alert("Şifre sıfırlama bağlantısı e-postana gönderildi."))
-    .catch(err => alert("Hata: " + err.message));
+  auth.sendPasswordResetEmail(e).then(() => alert("Şifre sıfırlama bağlantısı gönderildi.")).catch(err => alert("Hata: " + err.message));
 }
 
 function doLogin() {
   const e = document.getElementById('email').value; const p = document.getElementById('pass').value;
   document.getElementById('errorLog').innerText = "Giriş yapılıyor...";
-  
-  auth.signInWithEmailAndPassword(e, p)
-  .then((cred) => {
-    // E-POSTA DOĞRULAMA KONTROLÜ
-    if (!cred.user.emailVerified) {
-      auth.signOut();
-      document.getElementById('errorLog').innerText = "Lütfen e-postanıza gelen link ile hesabı doğrulayın.";
-      alert("Giriş yapmadan önce e-postanızı doğrulamanız gerekiyor. Spam klasörünü kontrol edin.");
-    }
-  })
-  .catch(err => document.getElementById('errorLog').innerText = err.message);
+  // Artık verification kontrolü yok
+  auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('errorLog').innerText = err.message);
 }
 
 function doRegister() {
@@ -273,16 +260,8 @@ function doRegister() {
     if(!snap.empty) { document.getElementById('errorReg').innerText = "Alınmış isim!"; return; }
     
     auth.createUserWithEmailAndPassword(e, p).then(cred => {
-      // 1. Kullanıcıyı kaydet
+      // Kayıt başarılı, direkt giriş yapılmış olur
       return db.collection('users').doc(cred.user.uid).set({ username: u, email: e, uid: cred.user.uid });
-    }).then(() => {
-      // 2. Doğrulama maili gönder
-      const user = auth.currentUser;
-      user.sendEmailVerification().then(() => {
-        alert("Kayıt başarılı! E-postana doğrulama linki gönderdik. Lütfen onayla.");
-        auth.signOut(); // Otomatik girişi engelle
-        toLogin();
-      });
     }).catch(err => document.getElementById('errorReg').innerText = err.message);
   });
 }
@@ -290,8 +269,7 @@ function doRegister() {
 function logOut() { auth.signOut(); location.reload(); }
 
 auth.onAuthStateChanged(user => {
-  // SADECE DOĞRULANMIŞSA GİRİŞE İZİN VER
-  if(user && user.emailVerified) {
+  if(user) {
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'flex';
@@ -311,7 +289,6 @@ auth.onAuthStateChanged(user => {
     loadActiveChats(); 
     loadRequests();
   } else {
-    // Doğrulanmamışsa veya çıkış yapmışsa login ekranı
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appScreen').style.display = 'none';
   }
@@ -567,6 +544,7 @@ function sendMsg() {
 
   const friendID = currentChatID.replace(currentUser.uid, "").replace("_", "");
   
+  // Mesaj atınca lastMsg güncelle
   db.collection('users').doc(currentUser.uid).collection('friends').doc(friendID).set({
     lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
