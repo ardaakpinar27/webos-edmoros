@@ -45,21 +45,31 @@ main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
   background: white; margin: 8px 15px; border-radius: 18px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer;
   transition: transform 0.1s;
+  -webkit-user-select: none; user-select: none; /* Basılı tutunca seçim olmasın */
 }
 .chat-card:active { transform: scale(0.98); background: #f9f9f9; }
 
-/* ARKADAŞ KARTI (Daha ince) */
+/* ARKADAŞ KARTI */
 .friend-card {
   display: flex; align-items: center; padding: 12px 15px;
-  background: white; margin: 0 15px 1px; /* Birleşik liste görünümü */
+  background: white; margin: 0 15px 1px;
   cursor: pointer; -webkit-user-select: none; user-select: none;
 }
 .friend-card:first-child { border-top-left-radius: 18px; border-top-right-radius: 18px; }
 .friend-card:last-child { border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; margin-bottom: 10px; }
 .friend-card:active { background: #f0f0f0; }
 
-.avatar { width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0; font-size: 24px; }
+/* AVATAR GÜNCELLEMESİ */
+.avatar { 
+  width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93; 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+  margin-right: 15px; flex-shrink: 0; font-size: 24px; 
+  overflow: hidden; /* Resim taşmasın */
+  position: relative;
+}
 .avatar.system { background: var(--primary); color: white; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; } /* Resim sığdırma */
+
 .info { flex: 1; min-width: 0; }
 .name-row { display: flex; justify-content: space-between; align-items: baseline; }
 .name { font-weight: 600; font-size: 16px; color: #000; }
@@ -100,6 +110,8 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
 </style>
 </head>
 <body>
+
+<input type="file" id="avatarInput" accept="image/*" style="display:none">
 
 <section id="loginScreen">
   <div class="auth-box" id="loginBox">
@@ -151,11 +163,12 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
     <div id="tabSettings" class="tab">
       <div class="settings-container">
         <div style="text-align:center; padding-top:40px;">
-          <div class="avatar" style="width:100px; height:100px; font-size:50px; margin:0 auto 15px; background:white; color:#ccc; border:1px solid #eee;">
-            <i class="material-icons">person</i>
+          <div class="avatar" id="myAvatarDisplay" onclick="changeAvatar()" style="width:100px; height:100px; font-size:50px; margin:0 auto 15px; background:white; color:#ccc; border:1px solid #eee; cursor:pointer;">
+            <i class="material-icons">add_a_photo</i>
           </div>
           <h2 id="myDisName" style="margin:0;">...</h2>
           <p id="myDisEmail" style="color:#8e8e93; margin-top:5px;">...</p>
+          <p style="color:var(--primary); font-size:12px; margin-top:5px;">Fotoğraf değiştirmek için avatara tıkla</p>
         </div>
         <button class="btn-logout" onclick="logOut()">
           <i class="material-icons" style="margin-right:8px;">logout</i> Çıkış Yap
@@ -193,7 +206,7 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
 <div id="menuOverlay" onclick="closeContextMenu()"></div>
 <div id="contextMenu">
   <div class="ctx-item" onclick="confirmDeleteChat()">
-    <i class="material-icons">delete</i> Arkadaşı Sil
+    <i class="material-icons">delete</i> Sohbeti Sil
   </div>
 </div>
 
@@ -249,14 +262,26 @@ auth.onAuthStateChanged(user => {
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'flex';
-    db.collection('users').doc(user.uid).get().then(doc => {
+    
+    // Kullanıcı verisini çek (Fotoğraf dahil)
+    db.collection('users').doc(user.uid).onSnapshot(doc => {
       if(doc.exists) {
-        document.getElementById('myDisName').innerText = doc.data().username;
-        document.getElementById('myDisEmail').innerText = doc.data().email;
+        const data = doc.data();
+        document.getElementById('myDisName').innerText = data.username;
+        document.getElementById('myDisEmail').innerText = data.email;
+        
+        // Kendi avatarımı göster
+        const avDiv = document.getElementById('myAvatarDisplay');
+        if(data.photoURL) {
+           avDiv.innerHTML = `<img src="${data.photoURL}">`;
+        } else {
+           avDiv.innerHTML = `<i class="material-icons">add_a_photo</i>`;
+        }
       }
     });
-    loadAllFriends(); // Arkadaşlar sekmesi için
-    loadActiveChats(); // Sohbetler sekmesi için
+
+    loadAllFriends(); 
+    loadActiveChats(); 
     loadRequests();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
@@ -271,14 +296,60 @@ function goTab(tabId, btn) {
   btn.classList.add('active');
 }
 
-/* 3. ARKADAŞ İŞLEMLERİ */
+/* 3. AVATAR YÜKLEME (Base64 Sıkıştırmalı) */
+function changeAvatar() {
+  document.getElementById('avatarInput').click();
+}
+
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      // Resmi sıkıştır (Max 300x300px)
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const maxSize = 300;
+
+      if (width > height) {
+        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+      } else {
+        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Base64'e çevir
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // %70 kalite
+      
+      // Firestore'a kaydet
+      db.collection('users').doc(currentUser.uid).update({
+        photoURL: dataUrl
+      }).then(() => alert("Profil fotoğrafı güncellendi!"));
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* 4. ARKADAŞ İŞLEMLERİ */
 function addFriend() {
   const target = document.getElementById('friendName').value.trim().toLowerCase();
   if(!target) return;
   db.collection('users').where('username','==',target).get().then(snap => {
     if(snap.empty) return alert("Kullanıcı bulunamadı.");
     const friend = snap.docs[0].data();
+    
+    // Fotoğrafı da kaydetmek istersen buradan alabilirsin ama şimdilik sadece istek atıyoruz
     const myName = document.getElementById('myDisName').innerText;
+    
     db.collection('friend_requests').add({ from: currentUser.uid, to: friend.uid, fromName: myName })
       .then(() => { alert("İstek gönderildi."); document.getElementById('friendName').value = ""; });
   });
@@ -299,22 +370,38 @@ function loadRequests() {
 function accept(reqId, uid, name) {
   const myName = document.getElementById('myDisName').innerText;
   const batch = db.batch();
-  // Sadece temel bilgileri kaydet (mesaj geçmişi yok henüz)
-  batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { uid: uid, username: name });
-  batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { uid: currentUser.uid, username: myName });
-  batch.delete(db.collection('friend_requests').doc(reqId));
-  batch.commit();
+  
+  // O anki profil fotosunu almaya çalışıyoruz
+  // (Gerçek zamanlı foto güncellemesi için daha karmaşık yapı gerekir ama bu yeterli)
+  db.collection('users').doc(uid).get().then(uSnap => {
+     let photo = null;
+     if(uSnap.exists) photo = uSnap.data().photoURL;
+
+     batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { 
+       uid: uid, username: name, photoURL: photo 
+     });
+     
+     // Karşı tarafa beni ekle (benim fotomla)
+     db.collection('users').doc(currentUser.uid).get().then(mySnap => {
+        let myPhoto = null;
+        if(mySnap.exists) myPhoto = mySnap.data().photoURL;
+        
+        batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { 
+           uid: currentUser.uid, username: myName, photoURL: myPhoto
+        });
+        
+        batch.delete(db.collection('friend_requests').doc(reqId));
+        batch.commit();
+     });
+  });
 }
 
-/* 4. LİSTELEME MANTIĞI */
-
-// A) ARKADAŞLAR SEKMESİ (TÜM LİSTE - KALICI)
+/* 5. LİSTELEME VE SİLME */
 function loadAllFriends() {
   db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(snap => {
     const d = document.getElementById('friendListDiv');
     let html = "";
     
-    // Sistem Botu
     html += `
       <div class="friend-card" onclick="openSystemChat()">
         <div class="avatar system"><i class="material-icons">verified</i></div>
@@ -326,7 +413,10 @@ function loadAllFriends() {
 
     snap.forEach(docSnap => {
       const f = docSnap.data();
-      // Silme eventi burada (Arkadaşlar sekmesinde)
+      // Avatar kontrolü
+      let avatarHtml = `<i class="material-icons">person</i>`;
+      if(f.photoURL) avatarHtml = `<img src="${f.photoURL}">`;
+
       html += `
         <div class="friend-card"
              oncontextmenu="handleRightClick(event, '${f.uid}')"
@@ -334,7 +424,7 @@ function loadAllFriends() {
              ontouchend="handleTouchEnd()"
              ontouchmove="handleTouchMove()"
              onclick="handleClick('${f.uid}', '${f.username}')">
-          <div class="avatar"><i class="material-icons">person</i></div>
+          <div class="avatar">${avatarHtml}</div>
           <div class="info">
              <div class="name">${f.username}</div>
              <div class="time">Profil</div>
@@ -345,10 +435,9 @@ function loadAllFriends() {
   });
 }
 
-// B) SOHBETLER SEKMESİ (SADECE MESAJLAŞILANLAR)
 function loadActiveChats() {
   db.collection('users').doc(currentUser.uid).collection('friends')
-    .orderBy('lastMsgTime', 'desc') // Son konuşulan en üstte
+    .orderBy('lastMsgTime', 'desc')
     .onSnapshot(snap => {
     
     const d = document.getElementById('chatListDiv');
@@ -358,7 +447,6 @@ function loadActiveChats() {
 
     snap.forEach(docSnap => {
       const f = docSnap.data();
-      // Sadece mesaj varsa göster
       if(f.lastMsg) {
         hasChat = true;
         let timeStr = "";
@@ -367,9 +455,18 @@ function loadActiveChats() {
           timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
         }
 
+        let avatarHtml = `<i class="material-icons">person</i>`;
+        if(f.photoURL) avatarHtml = `<img src="${f.photoURL}">`;
+
+        // BURADA SİLME ÖZELLİĞİ EKLENDİ (Chat Kartına da Context Menu)
         html += `
-          <div class="chat-card" onclick="openChat('${f.uid}', '${f.username}')">
-            <div class="avatar"><i class="material-icons">person</i></div>
+          <div class="chat-card" 
+               oncontextmenu="handleRightClick(event, '${f.uid}')"
+               ontouchstart="handleTouchStart(event, '${f.uid}')"
+               ontouchend="handleTouchEnd()"
+               ontouchmove="handleTouchMove()"
+               onclick="handleClick('${f.uid}', '${f.username}')">
+            <div class="avatar">${avatarHtml}</div>
             <div class="info">
                <div class="name-row">
                  <span class="name">${f.username}</span>
@@ -386,7 +483,7 @@ function loadActiveChats() {
   });
 }
 
-/* 5. SİLME MANTIĞI (Sadece Arkadaşlar sekmesinde) */
+/* SİLME İŞLEMLERİ */
 function handleRightClick(e, uid) { e.preventDefault(); selectedFriendUid = uid; showContextMenu(e.clientX, e.clientY); }
 function handleTouchStart(e, uid) { isLongPress = false; selectedFriendUid = uid; longPressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); showContextMenu(e.touches[0].clientX, e.touches[0].clientY); }, 600); }
 function handleTouchEnd() { clearTimeout(longPressTimer); }
@@ -402,7 +499,7 @@ function showContextMenu(x, y) {
 function closeContextMenu() { document.getElementById('contextMenu').style.display = 'none'; document.getElementById('menuOverlay').style.display = 'none'; }
 function confirmDeleteChat() {
   if(!selectedFriendUid) return;
-  if(confirm("Bu kişiyi silmek istiyor musun?")) {
+  if(confirm("Silmek istiyor musun?")) {
     db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).delete()
     .then(() => { closeContextMenu(); });
   } else { closeContextMenu(); }
@@ -449,21 +546,16 @@ function sendMsg() {
   if(!txt) return;
   if(currentChatID === "SYSTEM") return alert("Cevap verilemez.");
 
-  // 1. Mesajı Sohbet Koleksiyonuna Ekle
   db.collection('chats').doc(currentChatID).collection('msgs').add({
     txt: txt, by: currentUser.uid, at: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  // 2. Her iki kullanıcının "Arkadaşlar" listesindeki son mesajı güncelle
-  // Bu işlem sayesinde kişi "Sohbetler" listesine düşer veya orada güncellenir.
   const friendID = currentChatID.replace(currentUser.uid, "").replace("_", "");
   
-  // Benim listemdeki güncelleme
   db.collection('users').doc(currentUser.uid).collection('friends').doc(friendID).set({
     lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
 
-  // Karşı tarafın listesindeki güncelleme
   db.collection('users').doc(friendID).collection('friends').doc(currentUser.uid).set({
     lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
