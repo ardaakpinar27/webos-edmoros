@@ -8,93 +8,67 @@
 
 <style>
 :root {
-  --primary: #075E54; /* WhatsApp Koyu Yeşil */
-  --secondary: #128C7E; /* WhatsApp Açık Yeşil */
-  --accent: #25D366; /* Parlak Yeşil */
-  --bg: #e5ddd5; /* Sohbet Arkaplanı */
+  --primary: #075E54;
+  --secondary: #128C7E;
+  --bg: #e5ddd5;
   --white: #ffffff;
-  --gray: #f0f2f5;
-  --text: #111b21;
+  --incoming-msg: #ffffff;
+  --outgoing-msg: #dcf8c6;
 }
 
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-body { margin: 0; background: #d1d7db; color: var(--text); height: 100vh; overflow: hidden; }
-
-/* UTILS */
+body { margin: 0; background: #d1d7db; height: 100vh; overflow: hidden; }
 .hidden { display: none !important; }
-.btn { width: 100%; padding: 12px; border-radius: 24px; border: none; font-weight: 600; cursor: pointer; font-size: 15px; transition: 0.2s; }
+.btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
 .btn-primary { background: var(--secondary); color: white; }
-.btn-primary:active { background: var(--primary); }
-.btn-text { background: transparent; color: var(--secondary); margin-top: 10px; }
-.input-group { margin-bottom: 12px; }
-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-size: 16px; }
-input:focus { border-color: var(--secondary); }
+.btn-danger { background: #d32f2f; color: white; margin-top: 20px; }
 
-/* LOGIN SCREEN */
-#loginScreen {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  height: 100vh; background: var(--gray); padding: 20px;
-}
-.auth-card {
-  background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;
-}
-.logo { font-size: 32px; color: var(--primary); font-weight: bold; margin-bottom: 20px; display: block; }
-.error { color: #d32f2f; font-size: 13px; margin-top: 5px; min-height: 20px; }
+/* AUTH SCREENS */
+#loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; background: #f0f2f5; }
+.auth-card { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
 
-/* APP SCREEN */
-#appScreen { display: flex; flex-direction: column; height: 100%; background: white; max-width: 480px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
+/* APP LAYOUT */
+#appScreen { display: flex; flex-direction: column; height: 100%; background: white; max-width: 480px; margin: 0 auto; position: relative; }
 
 /* HEADER */
-header {
-  background: var(--primary); color: white; padding: 16px; 
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
-}
-header h1 { margin: 0; font-size: 20px; font-weight: 500; }
-.logout-btn { background: none; border: none; color: white; cursor: pointer; }
+header { background: var(--primary); color: white; padding: 16px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+header h1 { margin: 0; font-size: 20px; }
 
-/* MAIN CONTENT */
-main { flex: 1; overflow-y: auto; background: white; position: relative; }
-
-/* TABS */
-.tab { display: none; padding: 0; }
+/* MAIN TABS */
+main { flex: 1; overflow-y: auto; background: white; }
+.tab { display: none; }
 .tab.active { display: block; }
 
-/* LIST ITEMS (Chats & Friends) */
-.list-item {
-  display: flex; align-items: center; padding: 12px 16px;
-  border-bottom: 1px solid #f0f2f5; cursor: pointer;
-}
-.list-item:hover { background: #f5f6f6; }
-.avatar {
-  width: 48px; height: 48px; background: #ddd; border-radius: 50%; 
-  margin-right: 15px; display: flex; align-items: center; justify-content: center;
-  color: #555; font-size: 20px;
-}
-.info { flex: 1; }
-.info h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 500; color: #111; }
-.info p { margin: 0; font-size: 14px; color: #667781; }
+/* FRIENDS & LISTS */
+.list-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; }
+.list-item:hover { background: #f5f5f5; }
+.avatar { width: 45px; height: 45px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #555; }
+.user-info h3 { margin: 0; font-size: 16px; }
+.user-info p { margin: 0; font-size: 13px; color: gray; }
+
+/* SETTINGS */
+#tabSettings { padding: 20px; text-align: center; }
+.profile-large { width: 80px; height: 80px; background: #eee; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #888; }
 
 /* FOOTER NAV */
-footer {
-  background: white; border-top: 1px solid #ddd; height: 60px;
-  display: flex; align-items: center; justify-content: space-around;
-}
-.nav-btn {
-  background: none; border: none; display: flex; flex-direction: column;
-  align-items: center; color: #54656f; font-size: 12px; flex: 1; padding: 8px 0;
-}
-.nav-btn span { font-size: 24px; margin-bottom: 2px; }
+footer { background: white; border-top: 1px solid #ddd; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; }
+.nav-btn { background: none; border: none; flex: 1; display: flex; flex-direction: column; align-items: center; color: #888; font-size: 11px; padding: 8px 0; }
+.nav-btn span { font-size: 26px; margin-bottom: 2px; }
 .nav-btn.active { color: var(--primary); }
 
-/* ADD FRIEND SECTION */
-.friend-search-box { padding: 16px; background: #f0f2f5; }
-.request-card {
-  padding: 12px; margin: 10px 16px; background: #e7fce3; 
-  border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-}
-.request-card button { padding: 6px 12px; font-size: 13px; width: auto; }
+/* CHAT VIEW (OVERLAY) */
+#chatView { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 20; display: flex; flex-direction: column; }
+#chatHeader { background: var(--primary); color: white; padding: 10px; display: flex; align-items: center; height: 60px; }
+#chatMessages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+#chatInputArea { background: white; padding: 10px; display: flex; align-items: center; gap: 10px; }
+#msgInput { flex: 1; border-radius: 20px; border: none; background: #f0f2f5; padding: 12px; outline: none; }
+.back-btn { background: none; border: none; color: white; margin-right: 10px; cursor: pointer; }
+
+/* BUBBLES */
+.message { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 14px; position: relative; word-wrap: break-word; }
+.message.sent { align-self: flex-end; background: var(--outgoing-msg); border-radius: 8px 0 8px 8px; }
+.message.received { align-self: flex-start; background: var(--incoming-msg); border-radius: 0 8px 8px 8px; }
 
 </style>
 </head>
@@ -102,83 +76,102 @@ footer {
 
 <section id="loginScreen">
   <div class="auth-card">
-    <span class="logo">EdMessenger</span>
+    <h1 style="color:var(--primary)">EdMessenger</h1>
     
     <div id="loginForm">
-      <div class="input-group">
-        <input id="loginEmail" type="email" placeholder="E-posta adresi">
-      </div>
-      <div class="input-group">
-        <input id="loginPassword" type="password" placeholder="Şifre">
-      </div>
+      <input id="loginEmail" type="email" placeholder="E-posta">
+      <input id="loginPassword" type="password" placeholder="Şifre">
       <button id="btnLoginAction" class="btn btn-primary">Giriş Yap</button>
-      <button id="btnSwitchToRegister" class="btn btn-text">Hesabın yok mu? Kayıt Ol</button>
+      <p onclick="toggleForms()" style="cursor:pointer; font-size:14px; color:var(--secondary)">Hesabın yok mu? Kayıt Ol</p>
     </div>
 
     <div id="registerForm" class="hidden">
-      <div class="input-group">
-        <input id="regUsername" type="text" placeholder="Kullanıcı Adı (Benzersiz)">
-      </div>
-      <div class="input-group">
-        <input id="regEmail" type="email" placeholder="E-posta adresi">
-      </div>
-      <div class="input-group">
-        <input id="regPassword" type="password" placeholder="Şifre (Min 6 karakter)">
-      </div>
+      <input id="regUsername" type="text" placeholder="Kullanıcı Adı (küçük harf)">
+      <input id="regEmail" type="email" placeholder="E-posta">
+      <input id="regPassword" type="password" placeholder="Şifre">
       <button id="btnRegisterAction" class="btn btn-primary">Kayıt Ol</button>
-      <button id="btnSwitchToLogin" class="btn btn-text">Zaten hesabın var mı? Giriş Yap</button>
+      <p onclick="toggleForms()" style="cursor:pointer; font-size:14px; color:var(--secondary)">Giriş Yap</p>
     </div>
-
-    <p id="authError" class="error"></p>
+    <p id="authError" style="color:red; font-size:12px;"></p>
   </div>
 </section>
 
 <section id="appScreen" class="hidden">
   <header>
     <h1>EdMessenger</h1>
-    <button id="btnLogout" class="logout-btn"><span class="material-icons">logout</span></button>
   </header>
 
   <main>
     <div id="tabChats" class="tab active">
-      <div id="chatList">
-        <div style="padding:20px; text-align:center; color:#888; margin-top:50px;">
-          <span class="material-icons" style="font-size:48px;">chat_bubble_outline</span>
-          <p>Henüz sohbet yok.<br>Arkadaş ekleyerek başla!</p>
-        </div>
+      <div id="recentChatsList">
+        <p style="text-align:center; padding:20px; color:#888">Henüz sohbet yok.</p>
       </div>
     </div>
 
     <div id="tabFriends" class="tab">
-      <div class="friend-search-box">
+      <div style="padding:15px; background:#f7f7f7;">
         <div style="display:flex; gap:10px;">
-          <input id="friendUsernameInput" placeholder="Kullanıcı adı ara...">
-          <button id="btnAddFriend" style="width:auto; margin:0;" class="btn btn-primary"><span class="material-icons">person_add</span></button>
+          <input id="friendInput" placeholder="Kullanıcı adı..." style="margin:0;">
+          <button id="btnAddFriend" style="width:auto; padding:0 20px;" class="btn btn-primary">+</button>
         </div>
-        <p id="friendError" class="error" style="text-align:left; padding-left:5px;"></p>
+        <div id="requestList" style="margin-top:10px;"></div>
       </div>
-
-      <h4 style="margin: 10px 16px; color:var(--primary);">Gelen İstekler</h4>
-      <div id="requestsList"></div>
-
-      <h4 style="margin: 10px 16px; color:#54656f;">Tüm Kişiler</h4>
       <div id="friendsList">
         </div>
+    </div>
+
+    <div id="tabSettings" class="tab">
+      <div class="profile-large">
+        <span class="material-icons" style="font-size:40px">person</span>
+      </div>
+      <h2 id="settingsUsername">Kullanıcı</h2>
+      <p id="settingsEmail" style="color:#666">email@mail.com</p>
+      
+      <button id="btnLogout" class="btn btn-danger">Çıkış Yap</button>
     </div>
   </main>
 
   <footer>
     <button id="navChats" class="nav-btn active">
-      <span class="material-icons">chat</span>
+      <span class="material-icons">chat_bubble</span>
       Sohbetler
     </button>
     <button id="navFriends" class="nav-btn">
-      <span class="material-icons">people</span>
-      Kişiler
+      <span class="material-icons">group</span>
+      Arkadaşlar
+    </button>
+    <button id="navSettings" class="nav-btn">
+      <span class="material-icons">settings</span>
+      Ayarlar
     </button>
   </footer>
+
+  <div id="chatView" class="hidden">
+    <div id="chatHeader">
+      <button id="closeChatBtn" class="back-btn"><span class="material-icons">arrow_back</span></button>
+      <span class="material-icons" style="margin-right:10px;">account_circle</span>
+      <h3 id="chatTitle" style="margin:0; font-size:18px;">Kullanıcı</h3>
+    </div>
+    <div id="chatMessages">
+      <div class="message received">Merhaba!</div>
+      <div class="message sent">Selam, naber?</div>
+    </div>
+    <div id="chatInputArea">
+      <input id="msgInput" placeholder="Mesaj yaz...">
+      <button id="sendMsgBtn" style="width:50px; height:50px; border-radius:50%; border:none; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center;">
+        <span class="material-icons">send</span>
+      </button>
+    </div>
+  </div>
+
 </section>
 
+<script>
+  function toggleForms() {
+    document.getElementById('loginForm').classList.toggle('hidden');
+    document.getElementById('registerForm').classList.toggle('hidden');
+  }
+</script>
 <script type="module" src="app.js"></script>
 </body>
 </html>

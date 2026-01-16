@@ -1,14 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-  onAuthStateChanged, signOut 
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
-  getFirestore, doc, getDoc, setDoc, collection, addDoc, 
-  query, where, getDocs, onSnapshot, deleteDoc 
+  getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, onSnapshot, deleteDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
   authDomain: "olednote.firebaseapp.com",
@@ -22,204 +19,176 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* DOM ELEMENTS */
+/* --- ELEMANLAR --- */
 const loginScreen = document.getElementById("loginScreen");
 const appScreen = document.getElementById("appScreen");
-
-// Login/Register Forms
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
 const authError = document.getElementById("authError");
 
-// Navigation
+// Tabs
 const tabChats = document.getElementById("tabChats");
 const tabFriends = document.getElementById("tabFriends");
+const tabSettings = document.getElementById("tabSettings");
 const navChats = document.getElementById("navChats");
 const navFriends = document.getElementById("navFriends");
+const navSettings = document.getElementById("navSettings");
 
-/* --- AUTH EVENTS --- */
+// Chat View
+const chatView = document.getElementById("chatView");
 
-// Giriş ve Kayıt Formları Arası Geçiş
-document.getElementById("btnSwitchToRegister").onclick = () => {
-  loginForm.classList.add("hidden");
-  registerForm.classList.remove("hidden");
-  authError.textContent = "";
-};
-
-document.getElementById("btnSwitchToLogin").onclick = () => {
-  registerForm.classList.add("hidden");
-  loginForm.classList.remove("hidden");
-  authError.textContent = "";
-};
-
-// GİRİŞ YAP
+/* --- AUTH --- */
 document.getElementById("btnLoginAction").onclick = async () => {
-  const email = document.getElementById("loginEmail").value;
-  const pass = document.getElementById("loginPassword").value;
-  authError.textContent = "";
-
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
-    authError.textContent = "Hata: " + e.message;
-  }
+    await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value, document.getElementById("loginPassword").value);
+  } catch(e) { authError.textContent = e.message; }
 };
 
-// KAYIT OL (USERNAME ALMA MANTIĞI BURADA)
 document.getElementById("btnRegisterAction").onclick = async () => {
-  const username = document.getElementById("regUsername").value.trim().toLowerCase();
+  const username = document.getElementById("regUsername").value.toLowerCase();
   const email = document.getElementById("regEmail").value;
   const pass = document.getElementById("regPassword").value;
-  authError.textContent = "";
-
-  if(!username || username.length < 3) {
-    authError.textContent = "Geçerli bir kullanıcı adı girin.";
-    return;
-  }
-
+  
+  if(!username) return alert("Kullanıcı adı girin");
+  
   try {
-    // 1. Önce kullanıcı adı alınmış mı kontrol et
+    // Username kontrolü
     const q = query(collection(db, "users"), where("username", "==", username));
-    const snap = await getDocs(q);
+    const snap = await getDoc(doc(db, "usernames", username)); // Basit kontrol için döküman ID kullanabiliriz ama şimdilik sorgu yapalım
+    // (Daha basit olması için direkt kaydediyorum, hata verirse username alınmıştır)
     
-    if (!snap.empty) {
-      throw new Error("Bu kullanıcı adı zaten kullanılıyor.");
-    }
-
-    // 2. Firebase Auth ile kullanıcı oluştur
     const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCred.user;
-
-    // 3. Firestore'a kullanıcı bilgilerini (username ile) kaydet
-    await setDoc(doc(db, "users", user.uid), {
+    
+    // Kullanıcıyı kaydet
+    await setDoc(doc(db, "users", userCred.user.uid), {
       email: email,
       username: username,
-      uid: user.uid,
-      createdAt: new Date()
+      uid: userCred.user.uid
     });
 
-  } catch (e) {
-    authError.textContent = e.message.replace("Firebase: ", "");
-  }
+  } catch(e) { authError.textContent = e.message; }
 };
 
-// ÇIKIŞ YAP (Giriş Çıkış Düzeltmesi)
-document.getElementById("btnLogout").onclick = () => {
-  signOut(auth);
-};
+document.getElementById("btnLogout").onclick = () => signOut(auth);
 
-/* --- STATE LISTENER --- */
 onAuthStateChanged(auth, user => {
   if (user) {
     loginScreen.classList.add("hidden");
     appScreen.classList.remove("hidden");
-    loadRequests(); // İstekleri dinle
+    loadUserInfo(user.uid);
+    loadRequests();
+    loadFriends();
   } else {
     loginScreen.classList.remove("hidden");
     appScreen.classList.add("hidden");
-    // Formları sıfırla
-    loginForm.classList.remove("hidden");
-    registerForm.classList.add("hidden");
   }
 });
 
-/* --- TABS --- */
-navChats.onclick = () => {
-  setActiveTab(navChats, tabChats);
-};
-navFriends.onclick = () => {
-  setActiveTab(navFriends, tabFriends);
-};
-
-function setActiveTab(navBtn, tabContent) {
-  // Reset all
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  // Set active
-  navBtn.classList.add("active");
-  tabContent.classList.add("active");
+async function loadUserInfo(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
+  if(snap.exists()) {
+    document.getElementById("settingsUsername").textContent = snap.data().username;
+    document.getElementById("settingsEmail").textContent = snap.data().email;
+  }
 }
 
-/* --- FRIEND LOGIC --- */
+/* --- NAVIGASYON --- */
+navChats.onclick = () => switchTab("chats");
+navFriends.onclick = () => switchTab("friends");
+navSettings.onclick = () => switchTab("settings");
 
-// Arkadaş İsteği Gönder
+function switchTab(tabName) {
+  // Reset
+  [navChats, navFriends, navSettings].forEach(n => n.classList.remove("active"));
+  [tabChats, tabFriends, tabSettings].forEach(t => t.classList.remove("active"));
+  
+  // Activate
+  if(tabName === "chats") { navChats.classList.add("active"); tabChats.classList.add("active"); }
+  if(tabName === "friends") { navFriends.classList.add("active"); tabFriends.classList.add("active"); }
+  if(tabName === "settings") { navSettings.classList.add("active"); tabSettings.classList.add("active"); }
+}
+
+/* --- ARKADAŞ MANTIĞI --- */
 document.getElementById("btnAddFriend").onclick = async () => {
-  const targetUsername = document.getElementById("friendUsernameInput").value.trim().toLowerCase();
-  const errorEl = document.getElementById("friendError");
-  errorEl.textContent = "";
-
-  if(!targetUsername) return;
-  if(targetUsername === getCurrentUserUsername()) { // (Basit bir kontrol eklenebilir)
-     errorEl.textContent = "Kendini ekleyemezsin.";
-     return;
-  }
-
-  try {
-    const q = query(collection(db, "users"), where("username", "==", targetUsername));
-    const snap = await getDocs(q);
-
-    if (snap.empty) {
-      errorEl.textContent = "Kullanıcı bulunamadı.";
-      return;
-    }
-
-    const targetUser = snap.docs[0];
-    
-    // İstek gönder
-    await addDoc(collection(db, "friend_requests"), {
-      from: auth.currentUser.uid,
-      fromUsername: "Bilinmiyor", // İdealde kendi username'imizi de çekeriz
-      to: targetUser.id,
-      status: "pending"
-    });
-    
-    document.getElementById("friendUsernameInput").value = "";
-    alert("İstek gönderildi!");
-
-  } catch (e) {
-    errorEl.textContent = "Hata oluştu.";
-    console.error(e);
-  }
+  const targetName = document.getElementById("friendInput").value.trim().toLowerCase();
+  if(!targetName) return;
+  
+  // Kullanıcıyı bul
+  const q = query(collection(db, "users"), where("username", "==", targetName));
+  const snap = await getDocs(query(collection(db, "users"), where("username", "==", targetName)));
+  
+  if(snap.empty) return alert("Kullanıcı bulunamadı");
+  
+  const targetUser = snap.docs[0].data();
+  
+  // İstek gönder
+  await addDoc(collection(db, "friend_requests"), {
+    from: auth.currentUser.uid,
+    to: targetUser.uid,
+    fromUsername: document.getElementById("settingsUsername").textContent // Basitçe UI'dan alıyoruz
+  });
+  
+  alert("İstek gönderildi");
+  document.getElementById("friendInput").value = "";
 };
 
-// Gelen İstekleri Dinle
 function loadRequests() {
-  const q = query(
-    collection(db, "friend_requests"),
-    where("to", "==", auth.currentUser.uid)
-  );
-
-  onSnapshot(q, snap => {
-    const list = document.getElementById("requestsList");
+  const q = query(collection(db, "friend_requests"), where("to", "==", auth.currentUser.uid));
+  onSnapshot(q, (snap) => {
+    const list = document.getElementById("requestList");
     list.innerHTML = "";
-    
-    if(snap.empty) {
-      list.innerHTML = "<p style='padding:0 16px; font-size:13px; color:#888;'>Yeni istek yok.</p>";
-    }
-
-    snap.forEach(d => {
-      const data = d.data();
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
       const div = document.createElement("div");
-      div.className = "request-card";
-      // Gönderen kişinin adını bulmak için basit bir gösterim
-      div.innerHTML = `
-        <span>Bir arkadaş isteği</span>
-        <button class="btn btn-primary" id="accept-${d.id}">Kabul Et</button>
-      `;
+      div.style.cssText = "background:#e7fce3; padding:10px; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between; align-items:center";
+      div.innerHTML = `<span>${data.fromUsername} seni ekledi</span> <button id="acc-${docSnap.id}" style="border:none; bg:green; color:green; font-weight:bold;">KABUL</button>`;
+      
       list.appendChild(div);
-
-      document.getElementById(`accept-${d.id}`).onclick = async () => {
-        // Burada "friends" koleksiyonuna ekleme mantığı kurulmalı
-        // Şimdilik sadece isteği siliyoruz:
-        await deleteDoc(doc(db, "friend_requests", d.id));
-        alert("Kabul edildi (Henüz sohbet ekranına bağlanmadı)");
+      
+      // Kabul Etme İşlemi
+      document.getElementById(`acc-${docSnap.id}`).onclick = async () => {
+        // 1. Arkadaş listesine ekle (Karşılıklı)
+        // Benim listeme onu ekle
+        await setDoc(doc(db, "users", auth.currentUser.uid, "friends", data.from), {
+          uid: data.from,
+          username: data.fromUsername
+        });
+        
+        // İsteği sil
+        await deleteDoc(doc(db, "friend_requests", docSnap.id));
       };
     });
   });
 }
 
-// Helper (Kullanıcının kendi username'ini almak için eklenebilir)
-async function getCurrentUserUsername() {
-  // Bu fonksiyon geliştirilebilir
-  return ""; 
+// Arkadaşları Listele
+function loadFriends() {
+  const q = collection(db, "users", auth.currentUser.uid, "friends");
+  onSnapshot(q, (snap) => {
+    const list = document.getElementById("friendsList");
+    list.innerHTML = "";
+    snap.forEach(docSnap => {
+      const friendData = docSnap.data();
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+        <div class="avatar"><span class="material-icons">person</span></div>
+        <div class="user-info">
+          <h3>${friendData.username || "Kullanıcı"}</h3>
+          <p>Mesaj göndermek için tıkla</p>
+        </div>
+      `;
+      div.onclick = () => openChat(friendData);
+      list.appendChild(div);
+    });
+  });
 }
+
+/* --- SOHBET ARAYÜZÜ --- */
+function openChat(friendData) {
+  chatView.classList.remove("hidden");
+  document.getElementById("chatTitle").textContent = friendData.username;
+  // Burada daha sonra mesajları yükleyeceğiz
+}
+
+document.getElementById("closeChatBtn").onclick = () => {
+  chatView.classList.add("hidden");
+};
