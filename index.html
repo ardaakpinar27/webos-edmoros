@@ -11,75 +11,124 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <style>
-/* --- TEMEL AYARLAR --- */
-* { box-sizing: border-box; font-family: -apple-system, sans-serif; }
-body { margin: 0; background: #e5ddd5; height: 100vh; overflow: hidden; }
+/* --- MODERN TEMA AYARLARI --- */
+:root {
+  --primary: #6c9eff; /* Hafif Silik Güzel Mavi */
+  --primary-dark: #5b89e0; 
+  --bg-app: #f9fbfc; /* Göz yormayan kırık beyaz/buz mavisi */
+  --white: #ffffff;
+  --text-dark: #333;
+  --text-light: #888;
+  --incoming: #ffffff;
+  --outgoing: #dbeaff; /* Mavi tonlu mesaj balonu */
+}
 
-/* --- GİRİŞ EKRANI --- */
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { margin: 0; background: var(--bg-app); height: 100vh; overflow: hidden; color: var(--text-dark); }
+
+/* --- GİRİŞ EKRANI (Login) --- */
 #loginScreen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: #fff; z-index: 2000;
+  background: var(--bg-app); z-index: 2000;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.auth-box { width: 80%; max-width: 300px; text-align: center; }
-input { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-button.btn-main { width: 100%; padding: 15px; background: #075E54; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; }
-.link { color: #075E54; margin-top: 20px; display: block; text-decoration: underline; }
+.auth-box { 
+  background: white; padding: 30px; border-radius: 20px; 
+  width: 85%; max-width: 320px; text-align: center; 
+  box-shadow: 0 10px 25px rgba(108, 158, 255, 0.15); 
+}
+.auth-box h2 { color: var(--primary); margin-top: 0; font-weight: 600; }
+input { 
+  width: 100%; padding: 14px; margin-bottom: 12px; 
+  border: 1px solid #eee; border-radius: 12px; 
+  font-size: 15px; background: #fafafa; outline: none; transition: 0.3s;
+}
+input:focus { border-color: var(--primary); background: white; }
+
+button.btn-main { 
+  width: 100%; padding: 14px; 
+  background: var(--primary); color: white; 
+  border: none; border-radius: 12px; 
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 10px rgba(108, 158, 255, 0.3);
+}
+.link { color: var(--primary); margin-top: 15px; display: block; font-size: 14px; cursor: pointer; }
 
 /* --- UYGULAMA EKRANI --- */
-#appScreen { display: none; height: 100vh; flex-direction: column; }
+#appScreen { display: none; height: 100vh; flex-direction: column; background: var(--bg-app); }
 
-/* HEADER */
+/* HEADER (ORTALANMIŞ & MAVİ) */
 header {
-  height: 60px; background: #075E54; color: white;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 15px; font-size: 18px; font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  height: 60px; background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center; /* Tam orta */
+  position: relative; /* İkonu sabitlemek için */
+  box-shadow: 0 2px 10px rgba(108, 158, 255, 0.2);
+}
+header span { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+header .logout-icon {
+  position: absolute; right: 15px; cursor: pointer; opacity: 0.9;
 }
 
-/* İÇERİK ALANI (Scroll Edilebilir) */
-main { flex: 1; overflow-y: auto; background: white; padding-bottom: 70px; /* Footer payı */ }
+/* MAIN CONTENT */
+main { flex: 1; overflow-y: auto; padding-bottom: 70px; }
 
-/* FOOTER (SABİT - ASLA KAYBOLMAZ) */
+/* BOŞ DURUM MESAJI */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 300px; color: var(--text-light); opacity: 0.7;
+}
+
+/* TABLAR & LİSTE */
+.tab { display: none; padding: 0; }
+.tab.active { display: block; }
+
+.user-row {
+  display: flex; align-items: center; padding: 15px 20px; 
+  border-bottom: 1px solid #f0f4f8; cursor: pointer; background: white;
+}
+.user-row:hover { background: #fcfcfc; }
+.avatar {
+  width: 45px; height: 45px; background: #eef3ff; color: var(--primary);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+  margin-right: 15px; font-size: 20px;
+}
+
+/* FOOTER (SABİT & MODERN) */
 footer {
-  position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-  background: white; border-top: 1px solid #ddd;
+  position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+  background: white; border-top: 1px solid #f0f4f8;
   display: flex; z-index: 1000;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+  padding-bottom: 5px; /* iOS bar payı */
 }
 .nav-btn {
   flex: 1; border: none; background: white;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: #888;
+  color: #ccc; transition: 0.3s;
 }
-.nav-btn.active { color: #075E54; }
-.nav-btn i { font-size: 24px; margin-bottom: 2px; }
-.nav-btn span { font-size: 10px; }
-
-/* --- SEKMELER --- */
-.tab { display: none; padding: 15px; }
-.tab.active { display: block; }
-
-/* LİSTE TASARIMI */
-.user-row {
-  display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;
-}
-.avatar {
-  width: 40px; height: 40px; background: #ddd; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; margin-right: 10px; color: #555;
-}
+.nav-btn.active { color: var(--primary); }
+.nav-btn i { font-size: 26px; margin-bottom: 3px; }
+.nav-btn span { font-size: 10px; font-weight: 600; }
 
 /* SOHBET PENCERESİ */
 #chatScreen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: #e5ddd5; z-index: 1500; display: none; flex-direction: column;
+  background: var(--bg-app); z-index: 1500; display: none; flex-direction: column;
 }
-#chatBody { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-#chatFooter { height: 60px; background: white; padding: 5px; display: flex; align-items: center; }
-.msg { padding: 8px 12px; border-radius: 10px; max-width: 70%; font-size: 14px; }
-.msg.me { align-self: flex-end; background: #dcf8c6; }
-.msg.other { align-self: flex-start; background: white; }
+#chatHeader {
+  height: 60px; background: white; color: var(--text-dark);
+  display: flex; align-items: center; padding: 0 15px;
+  border-bottom: 1px solid #eee;
+}
+#chatBody { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+#chatFooter { 
+  background: white; padding: 10px; display: flex; align-items: center; 
+  border-top: 1px solid #eee;
+}
+.msg { padding: 10px 15px; border-radius: 16px; max-width: 75%; font-size: 14px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.msg.me { align-self: flex-end; background: var(--outgoing); color: #222; border-bottom-right-radius: 4px; }
+.msg.other { align-self: flex-start; background: var(--incoming); color: #222; border-bottom-left-radius: 4px; }
 
-/* Yardımcı Sınıflar */
 .hidden { display: none !important; }
 </style>
 </head>
@@ -87,62 +136,67 @@ footer {
 
 <section id="loginScreen">
   <div class="auth-box" id="loginBox">
-    <h2 style="color:#075E54">EdMessenger</h2>
+    <h2>EdMessenger</h2>
     <input id="email" type="email" placeholder="E-posta">
     <input id="pass" type="password" placeholder="Şifre">
     <button class="btn-main" onclick="doLogin()">Giriş Yap</button>
-    <span class="link" onclick="toRegister()">Kayıt Ol</span>
-    <p id="errorLog" style="color:red; font-size:12px;"></p>
+    <span class="link" onclick="toRegister()">Hesabın yok mu? Kayıt Ol</span>
+    <p id="errorLog" style="color:red; font-size:12px; margin-top:10px;"></p>
   </div>
 
   <div class="auth-box hidden" id="registerBox">
-    <h2 style="color:#075E54">Kayıt Ol</h2>
-    <input id="rUser" type="text" placeholder="Kullanıcı Adı (Küçük harf)">
+    <h2>Kayıt Ol</h2>
+    <input id="rUser" type="text" placeholder="Kullanıcı Adı">
     <input id="rEmail" type="email" placeholder="E-posta">
     <input id="rPass" type="password" placeholder="Şifre">
     <button class="btn-main" onclick="doRegister()">Kayıt Ol</button>
     <span class="link" onclick="toLogin()">Giriş Yap</span>
-    <p id="errorReg" style="color:red; font-size:12px;"></p>
+    <p id="errorReg" style="color:red; font-size:12px; margin-top:10px;"></p>
   </div>
 </section>
 
 <section id="appScreen">
   <header>
     <span>EdMessenger</span>
-    <i class="material-icons" onclick="logOut()">logout</i>
+    <i class="material-icons logout-icon" onclick="logOut()">logout</i>
   </header>
 
   <main>
     <div id="tabChats" class="tab active">
-      <h3>Sohbetler</h3>
       <div id="chatListDiv">Yükleniyor...</div>
     </div>
 
     <div id="tabFriends" class="tab">
-      <div style="background:#f0f0f0; padding:10px; border-radius:8px; display:flex;">
-        <input id="friendName" placeholder="Kullanıcı adı..." style="margin:0; flex:1;">
-        <button onclick="addFriend()" style="width:50px; margin-left:5px; background:#075E54; color:white; border:none; border-radius:5px;">+</button>
+      <div style="padding:15px;">
+        <div style="background:white; padding:10px; border-radius:12px; display:flex; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+          <input id="friendName" placeholder="Kullanıcı adı ara..." style="margin:0; flex:1; border:none; background:transparent;">
+          <button onclick="addFriend()" style="width:40px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">
+            <i class="material-icons" style="font-size:20px">add</i>
+          </button>
+        </div>
+        <div id="reqList" style="margin-top:15px;"></div>
       </div>
-      <div id="reqList" style="margin-top:15px;"></div>
     </div>
 
     <div id="tabSettings" class="tab">
-      <center>
-        <div class="avatar" style="width:80px; height:80px; font-size:40px;"><i class="material-icons">person</i></div>
-        <h2 id="myDisName">...</h2>
-        <p id="myDisEmail">...</p>
+      <center style="padding-top:40px;">
+        <div class="avatar" style="width:100px; height:100px; font-size:50px; margin:0 auto 20px; background:white; border: 2px solid var(--primary);">
+          <i class="material-icons">person</i>
+        </div>
+        <h2 id="myDisName" style="margin-bottom:5px;">...</h2>
+        <p id="myDisEmail" style="color:#999; margin-top:0;">...</p>
       </center>
     </div>
   </main>
 
   <footer>
     <button class="nav-btn active" onclick="goTab('tabChats', this)">
-      <i class="material-icons">chat</i>
+      <i class="material-icons">chat_bubble_outline</i>
       <span>Sohbet</span>
     </button>
     <button class="nav-btn" onclick="goTab('tabFriends', this)">
-      <i class="material-icons">group_add</i>
-      <span>Arkadaş</span>
+      <i class="material-icons">people_outline</i>
+      <span>Arkadaşlar</span>
     </button>
     <button class="nav-btn" onclick="goTab('tabSettings', this)">
       <i class="material-icons">settings</i>
@@ -152,15 +206,17 @@ footer {
 </section>
 
 <div id="chatScreen">
-  <header>
-    <i class="material-icons" onclick="closeChat()">arrow_back</i>
-    <span id="chatTitle" style="margin-left:10px">Kişi</span>
-    <div style="flex:1"></div>
-  </header>
+  <div id="chatHeader">
+    <i class="material-icons" onclick="closeChat()" style="color:var(--primary); cursor:pointer">arrow_back_ios</i>
+    <div class="avatar" style="width:35px; height:35px; margin:0 10px; font-size:18px;"><i class="material-icons">person</i></div>
+    <span id="chatTitle" style="font-weight:600; font-size:16px;">Kişi</span>
+  </div>
+  
   <div id="chatBody"></div>
+  
   <div id="chatFooter">
-    <input id="msgTxt" placeholder="Mesaj..." style="margin:0; border-radius:20px;">
-    <button onclick="sendMsg()" style="width:40px; height:40px; background:#075E54; color:white; border:none; border-radius:50%; margin-left:5px;">
+    <input id="msgTxt" placeholder="Mesaj yaz..." style="margin:0; border-radius:20px; background:#f0f4f8; border:none;">
+    <button onclick="sendMsg()" style="width:45px; height:45px; background:var(--primary); color:white; border:none; border-radius:50%; margin-left:10px; box-shadow: 0 2px 5px rgba(108, 158, 255, 0.4);">
       <i class="material-icons">send</i>
     </button>
   </div>
@@ -208,10 +264,8 @@ function doRegister() {
   
   if(u.length < 3) return alert("Kullanıcı adı kısa!");
 
-  // Username kontrolü
   db.collection('users').where('username','==',u).get().then(snap => {
     if(!snap.empty) return alert("Bu isim alınmış!");
-    
     auth.createUserWithEmailAndPassword(e, p).then(cred => {
       return db.collection('users').doc(cred.user.uid).set({
         username: u, email: e, uid: cred.user.uid
@@ -229,9 +283,8 @@ auth.onAuthStateChanged(user => {
   if(user) {
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'flex'; // FLEX ÖNEMLİ
+    document.getElementById('appScreen').style.display = 'flex';
     
-    // Bilgileri Çek
     db.collection('users').doc(user.uid).get().then(doc => {
       if(doc.exists) {
         document.getElementById('myDisName').innerText = doc.data().username;
@@ -249,12 +302,8 @@ auth.onAuthStateChanged(user => {
 
 // --- TAB GEÇİŞLERİ ---
 function goTab(tabId, btn) {
-  // Tüm tabları gizle
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  // İsteneni aç
   document.getElementById(tabId).classList.add('active');
-  
-  // Buton renklerini sıfırla
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
@@ -266,14 +315,12 @@ function addFriend() {
   
   db.collection('users').where('username','==',target).get().then(snap => {
     if(snap.empty) return alert("Kullanıcı yok!");
-    
     const friend = snap.docs[0].data();
     const myName = document.getElementById('myDisName').innerText;
-
     db.collection('friend_requests').add({
       from: currentUser.uid, to: friend.uid, fromName: myName
     }).then(() => {
-      alert("İstek gitti!");
+      alert("İstek gönderildi");
       document.getElementById('friendName').value = "";
     });
   });
@@ -287,16 +334,15 @@ function loadRequests() {
     snap.forEach(docSnap => {
       const data = docSnap.data();
       d.innerHTML += `
-        <div style="background:#e7fce3; padding:10px; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between;">
-          <span><b>${data.fromName}</b> ekledi</span>
-          <button onclick="accept('${docSnap.id}','${data.from}','${data.fromName}')">Kabul</button>
+        <div style="background:white; padding:15px; margin-bottom:10px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+          <span><b>${data.fromName}</b> eklemek istiyor</span>
+          <button onclick="accept('${docSnap.id}','${data.from}','${data.fromName}')" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px;">Kabul</button>
         </div>`;
     });
   });
 }
 
 function accept(reqId, uid, name) {
-  // Karşılıklı ekle
   const myName = document.getElementById('myDisName').innerText;
   const batch = db.batch();
   
@@ -318,14 +364,25 @@ function loadFriends() {
   .onSnapshot(snap => {
     const d = document.getElementById('chatListDiv');
     d.innerHTML = "";
-    if(snap.empty) d.innerHTML = "Henüz arkadaş yok.";
+    
+    // BURASI DEĞİŞTİ: BOŞ DURUM MESAJI
+    if(snap.empty) {
+      d.innerHTML = `
+        <div class="empty-state">
+          <i class="material-icons" style="font-size:60px; margin-bottom:10px;">chat_bubble_outline</i>
+          <p>Henüz İleti Yok</p>
+        </div>`;
+    }
     
     snap.forEach(docSnap => {
       const f = docSnap.data();
       d.innerHTML += `
         <div class="user-row" onclick="openChat('${f.uid}','${f.username}')">
           <div class="avatar"><i class="material-icons">person</i></div>
-          <b>${f.username}</b>
+          <div style="flex:1">
+             <b style="font-size:16px">${f.username}</b>
+             <p style="margin:2px 0 0 0; font-size:13px; color:#aaa;">Mesaj yazmak için dokun</p>
+          </div>
         </div>`;
     });
   });
