@@ -119,8 +119,10 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
     <input id="pass" type="password" placeholder="Şifre">
     <button class="btn-main" onclick="doLogin()">Giriş Yap</button>
     <span class="link" onclick="toRegister()">Kayıt Ol</span>
+    <span class="link" onclick="resetPassword()" style="font-size:13px; color:#888; margin-top:10px;">Şifremi Unuttum</span>
     <p id="errorLog" style="color:red; font-size:13px; margin-top:10px;"></p>
   </div>
+  
   <div class="auth-box hidden" id="registerBox">
     <h2>Kayıt Ol</h2>
     <input id="rUser" type="text" placeholder="Kullanıcı Adı">
@@ -234,28 +236,62 @@ window.visualViewport.addEventListener('resize', () => {
   }
 });
 
-/* 2. AUTH */
+/* 2. AUTH & DOĞRULAMA KONTROLÜ */
 function toRegister() { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('registerBox').classList.remove('hidden'); }
 function toLogin() { document.getElementById('registerBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
+
+// ŞİFRE SIFIRLAMA
+function resetPassword() {
+  const e = document.getElementById('email').value;
+  if(!e) return alert("Lütfen önce E-posta kutusunu doldurun.");
+  auth.sendPasswordResetEmail(e)
+    .then(() => alert("Şifre sıfırlama bağlantısı e-postana gönderildi."))
+    .catch(err => alert("Hata: " + err.message));
+}
+
 function doLogin() {
   const e = document.getElementById('email').value; const p = document.getElementById('pass').value;
   document.getElementById('errorLog').innerText = "Giriş yapılıyor...";
-  auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('errorLog').innerText = err.message);
+  
+  auth.signInWithEmailAndPassword(e, p)
+  .then((cred) => {
+    // E-POSTA DOĞRULAMA KONTROLÜ
+    if (!cred.user.emailVerified) {
+      auth.signOut();
+      document.getElementById('errorLog').innerText = "Lütfen e-postanıza gelen link ile hesabı doğrulayın.";
+      alert("Giriş yapmadan önce e-postanızı doğrulamanız gerekiyor. Spam klasörünü kontrol edin.");
+    }
+  })
+  .catch(err => document.getElementById('errorLog').innerText = err.message);
 }
+
 function doRegister() {
   const u = document.getElementById('rUser').value.toLowerCase().trim(); const e = document.getElementById('rEmail').value; const p = document.getElementById('rPass').value;
   if(u.length < 3) return alert("Kısa isim!");
+  
   db.collection('users').where('username','==',u).get().then(snap => {
     if(!snap.empty) { document.getElementById('errorReg').innerText = "Alınmış isim!"; return; }
+    
     auth.createUserWithEmailAndPassword(e, p).then(cred => {
+      // 1. Kullanıcıyı kaydet
       return db.collection('users').doc(cred.user.uid).set({ username: u, email: e, uid: cred.user.uid });
+    }).then(() => {
+      // 2. Doğrulama maili gönder
+      const user = auth.currentUser;
+      user.sendEmailVerification().then(() => {
+        alert("Kayıt başarılı! E-postana doğrulama linki gönderdik. Lütfen onayla.");
+        auth.signOut(); // Otomatik girişi engelle
+        toLogin();
+      });
     }).catch(err => document.getElementById('errorReg').innerText = err.message);
   });
 }
+
 function logOut() { auth.signOut(); location.reload(); }
 
 auth.onAuthStateChanged(user => {
-  if(user) {
+  // SADECE DOĞRULANMIŞSA GİRİŞE İZİN VER
+  if(user && user.emailVerified) {
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'flex';
@@ -275,6 +311,7 @@ auth.onAuthStateChanged(user => {
     loadActiveChats(); 
     loadRequests();
   } else {
+    // Doğrulanmamışsa veya çıkış yapmışsa login ekranı
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appScreen').style.display = 'none';
   }
@@ -311,7 +348,7 @@ document.getElementById('avatarInput').addEventListener('change', function(e) {
   reader.readAsDataURL(file);
 });
 
-/* 4. ARKADAŞ & İSTEK (KABUL HATASI DÜZELTİLDİ) */
+/* 4. ARKADAŞ & İSTEK */
 function addFriend() {
   const target = document.getElementById('friendName').value.trim().toLowerCase();
   if(!target) return;
@@ -337,45 +374,30 @@ function loadRequests() {
   });
 }
 
-// ASYNC/AWAIT İLE GÜVENLİ KABUL ETME
 async function accept(reqId, uid, name) {
   try {
     const myName = document.getElementById('myDisName').innerText;
-    
-    // 1. Gönderenin verisini çek (Fotoğraf kontrolü)
     const senderSnap = await db.collection('users').doc(uid).get();
     const senderData = senderSnap.data() || {};
     const senderPhoto = senderData.photoURL || null;
 
-    // 2. Kendi verimi çek (Fotoğraf kontrolü)
     const mySnap = await db.collection('users').doc(currentUser.uid).get();
     const myData = mySnap.data() || {};
     const myPhoto = myData.photoURL || null;
 
     const batch = db.batch();
-
-    // 3. Karşılıklı ekle (null fotoğraf desteğiyle)
     batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { 
       uid: uid, username: name, photoURL: senderPhoto 
     });
-
     batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { 
       uid: currentUser.uid, username: myName, photoURL: myPhoto
     });
-
-    // 4. İsteği sil
     batch.delete(db.collection('friend_requests').doc(reqId));
-    
     await batch.commit();
-    console.log("Kabul edildi.");
-    
-  } catch (error) {
-    console.error("Kabul etme hatası:", error);
-    alert("Hata oluştu: " + error.message);
-  }
+  } catch (error) { alert("Hata: " + error.message); }
 }
 
-/* 5. LİSTELEME VE SİLME */
+/* 5. LİSTELEME */
 function loadAllFriends() {
   db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(snap => {
     const d = document.getElementById('friendListDiv');
@@ -481,7 +503,6 @@ function closeContextMenu() { document.getElementById('contextMenu').style.displ
 
 function confirmDeleteAction() {
   if(!selectedFriendUid) return;
-  
   const isChatTab = document.getElementById('tabChats').classList.contains('active');
   
   if(isChatTab) {
