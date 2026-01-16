@@ -154,6 +154,7 @@ footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; back
         </div>
         <div id="reqList" style="margin-top:15px;"></div>
       </div>
+      
       <div class="list-title">Kişilerim</div>
       <div id="friendListDiv"></div>
     </div>
@@ -227,7 +228,6 @@ let selectedFriendUid = null;
 let isLongPress = false;
 let longPressTimer;
 
-// Viewport fix
 window.visualViewport.addEventListener('resize', () => {
   if(document.getElementById('chatScreen').style.display === 'flex') {
     document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
@@ -311,7 +311,7 @@ document.getElementById('avatarInput').addEventListener('change', function(e) {
   reader.readAsDataURL(file);
 });
 
-/* 4. ARKADAŞ & İSTEK */
+/* 4. ARKADAŞ & İSTEK (KABUL HATASI DÜZELTİLDİ) */
 function addFriend() {
   const target = document.getElementById('friendName').value.trim().toLowerCase();
   if(!target) return;
@@ -336,33 +336,46 @@ function loadRequests() {
     });
   });
 }
-function accept(reqId, uid, name) {
-  const myName = document.getElementById('myDisName').innerText;
-  const batch = db.batch();
-  
-  // Kabul ederken karşı tarafın FOTOĞRAFINI ÇEK
-  db.collection('users').doc(uid).get().then(uSnap => {
-     let photo = null;
-     if(uSnap.exists) photo = uSnap.data().photoURL;
 
-     batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { 
-       uid: uid, username: name, photoURL: photo 
-     });
-     
-     // Karşı tarafa beni ekle
-     db.collection('users').doc(currentUser.uid).get().then(mySnap => {
-        let myPhoto = null;
-        if(mySnap.exists) myPhoto = mySnap.data().photoURL;
-        batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { 
-           uid: currentUser.uid, username: myName, photoURL: myPhoto
-        });
-        batch.delete(db.collection('friend_requests').doc(reqId));
-        batch.commit();
-     });
-  });
+// ASYNC/AWAIT İLE GÜVENLİ KABUL ETME
+async function accept(reqId, uid, name) {
+  try {
+    const myName = document.getElementById('myDisName').innerText;
+    
+    // 1. Gönderenin verisini çek (Fotoğraf kontrolü)
+    const senderSnap = await db.collection('users').doc(uid).get();
+    const senderData = senderSnap.data() || {};
+    const senderPhoto = senderData.photoURL || null;
+
+    // 2. Kendi verimi çek (Fotoğraf kontrolü)
+    const mySnap = await db.collection('users').doc(currentUser.uid).get();
+    const myData = mySnap.data() || {};
+    const myPhoto = myData.photoURL || null;
+
+    const batch = db.batch();
+
+    // 3. Karşılıklı ekle (null fotoğraf desteğiyle)
+    batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { 
+      uid: uid, username: name, photoURL: senderPhoto 
+    });
+
+    batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { 
+      uid: currentUser.uid, username: myName, photoURL: myPhoto
+    });
+
+    // 4. İsteği sil
+    batch.delete(db.collection('friend_requests').doc(reqId));
+    
+    await batch.commit();
+    console.log("Kabul edildi.");
+    
+  } catch (error) {
+    console.error("Kabul etme hatası:", error);
+    alert("Hata oluştu: " + error.message);
+  }
 }
 
-/* 5. LİSTELEME */
+/* 5. LİSTELEME VE SİLME */
 function loadAllFriends() {
   db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(snap => {
     const d = document.getElementById('friendListDiv');
@@ -417,6 +430,7 @@ function loadActiveChats() {
           const date = f.lastMsgTime.toDate();
           timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
         }
+
         let avatarHtml = `<i class="material-icons">person</i>`;
         if(f.photoURL) avatarHtml = `<img src="${f.photoURL}">`;
 
@@ -438,12 +452,13 @@ function loadActiveChats() {
           </div>`;
       }
     });
+
     d.innerHTML = html;
     emptyState.style.display = hasChat ? 'none' : 'block';
   });
 }
 
-/* SİLME MANTIĞI (ÖNEMLİ) */
+/* SİLME MANTIĞI */
 function handleRightClick(e, uid) { e.preventDefault(); selectedFriendUid = uid; showContextMenu(e.clientX, e.clientY); }
 function handleTouchStart(e, uid) { isLongPress = false; selectedFriendUid = uid; longPressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); showContextMenu(e.touches[0].clientX, e.touches[0].clientY); }, 600); }
 function handleTouchEnd() { clearTimeout(longPressTimer); }
@@ -453,9 +468,8 @@ function handleClick(uid, name) { if(!isLongPress) openChat(uid, name); }
 function showContextMenu(x, y) {
   const menu = document.getElementById('contextMenu');
   const txt = document.getElementById('ctxText');
-  
-  // Hangi sekmedeyiz?
   const isChatTab = document.getElementById('tabChats').classList.contains('active');
+  
   if(isChatTab) txt.innerText = "Sohbeti Kapat";
   else txt.innerText = "Arkadaşı Sil";
 
@@ -471,16 +485,14 @@ function confirmDeleteAction() {
   const isChatTab = document.getElementById('tabChats').classList.contains('active');
   
   if(isChatTab) {
-     // SADECE SOHBETİ KAPAT (Arkadaş Silinmez)
-     if(confirm("Sohbet geçmişi kapatılsın mı? (Arkadaş listesinden silinmez)")) {
+     if(confirm("Sohbet geçmişi kapatılsın mı? (Kişi listende kalır)")) {
         db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).update({
            lastMsg: firebase.firestore.FieldValue.delete(),
            lastMsgTime: firebase.firestore.FieldValue.delete()
         }).then(() => closeContextMenu());
      }
   } else {
-     // ARKADAŞI SİL (Her yerden gider)
-     if(confirm("Bu kişiyi tamamen silmek istiyor musun?")) {
+     if(confirm("Bu kişiyi ve tüm geçmişi silmek istiyor musun?")) {
         db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).delete()
         .then(() => closeContextMenu());
      }
@@ -534,7 +546,6 @@ function sendMsg() {
 
   const friendID = currentChatID.replace(currentUser.uid, "").replace("_", "");
   
-  // Mesaj atınca lastMsg güncelle (Böylece sohbete düşer)
   db.collection('users').doc(currentUser.uid).collection('friends').doc(friendID).set({
     lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
