@@ -6,30 +6,28 @@
 <title>EdMessenger</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
-/* --- iMESSAGE TARZI TEMA --- */
+/* --- TEMEL AYARLAR & iMESSAGE TEMA --- */
 :root {
   --primary: #007AFF; /* Apple Mavisi */
-  --bg-app: #ffffff;
-  --bg-chat: #ffffff;
   --incoming: #E9E9EB; /* Apple Grisi */
-  --outgoing: #007AFF; /* Apple Mavisi */
-  --text-in: #000000;
+  --outgoing: #007AFF; 
   --text-out: #ffffff;
-  --gray-text: #8e8e93;
+  --text-in: #000000;
+  --bg-app: #ffffff;
 }
 
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body { margin: 0; background: var(--bg-app); height: 100vh; overflow: hidden; color: #000; }
 
-/* --- GİRİŞ EKRANI --- */
+/* --- GİRİŞ EKRANI (Z-Index Yüksek) --- */
 #loginScreen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: #f2f2f7; z-index: 2000;
+  background: #f2f2f7; z-index: 9999; /* En üstte */
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .auth-box { 
@@ -53,7 +51,6 @@ button.btn-main {
 /* --- UYGULAMA --- */
 #appScreen { display: none; height: 100vh; flex-direction: column; background: white; }
 
-/* HEADER */
 header {
   height: 50px; background: white; 
   display: flex; align-items: center; justify-content: center;
@@ -64,13 +61,12 @@ header .logout-icon { position: absolute; right: 15px; color: var(--primary); cu
 
 main { flex: 1; overflow-y: auto; padding-bottom: 70px; }
 
-/* LİSTE TASARIMI */
+/* LİSTE */
 .user-row {
   display: flex; align-items: center; padding: 12px 20px; 
   border-bottom: 1px solid #c6c6c8; cursor: pointer; background: white;
   margin-left: 20px; 
 }
-.user-row:last-child { border-bottom: none; }
 .avatar {
   width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93;
   border-radius: 50%; display: flex; align-items: center; justify-content: center; 
@@ -78,17 +74,13 @@ main { flex: 1; overflow-y: auto; padding-bottom: 70px; }
   font-size: 24px; flex-shrink: 0;
 }
 .avatar.system { background: var(--primary); color: white; }
+.verified-badge { color: var(--primary); font-size: 16px; vertical-align: middle; margin-left: 4px; }
 
-/* MAVİ TİK */
-.verified-badge {
-  color: var(--primary); font-size: 16px; vertical-align: middle; margin-left: 4px;
-}
-
-/* FOOTER (GÜNCELLENDİ: Daha ince) */
+/* FOOTER (İnce) */
 footer {
-  position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; /* Düşürüldü */
+  position: fixed; bottom: 0; left: 0; width: 100%; height: 55px;
   background: #f9f9f9; border-top: 1px solid #b3b3b3;
-  display: flex; z-index: 1000; padding-bottom: 5px; /* iOS bar payı azaltıldı */
+  display: flex; z-index: 1000; padding-bottom: 2px;
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .nav-btn {
@@ -97,17 +89,16 @@ footer {
   color: #999;
 }
 .nav-btn.active { color: var(--primary); }
-.nav-btn i { font-size: 26px; margin-bottom: 2px; }
-.nav-btn span { font-size: 10px; font-weight: 500; }
+.nav-btn i { font-size: 26px; margin-bottom: 0px; }
+.nav-btn span { font-size: 9px; font-weight: 500; }
 
-/* --- SOHBET EKRANI --- */
+/* SOHBET EKRANI */
 #chatScreen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: white; z-index: 3000; display: none; flex-direction: column;
+  background: white; z-index: 5000; display: none; flex-direction: column;
 }
 #chatHeader {
-  height: 50px; background: rgba(255,255,255,0.9); 
-  backdrop-filter: blur(10px);
+  height: 50px; background: rgba(255,255,255,0.95); 
   border-bottom: 1px solid #b3b3b3;
   display: flex; align-items: center; padding: 0 10px;
   position: absolute; top: 0; width: 100%; z-index: 10;
@@ -117,32 +108,15 @@ footer {
   display: flex; flex-direction: column; gap: 4px; 
 }
 #chatFooter { 
-  background: #f9f9f9; padding: 10px; display: flex; align-items: center; 
+  background: #f9f9f9; padding: 8px 10px; display: flex; align-items: center; 
   border-top: 1px solid #b3b3b3; padding-bottom: 15px;
 }
-
-/* MESAJ BALONLARI */
 .msg { 
-  padding: 10px 16px; 
-  border-radius: 20px; 
-  max-width: 75%; 
-  font-size: 16px; 
-  line-height: 1.3;
-  position: relative;
-  word-wrap: break-word;
+  padding: 10px 16px; border-radius: 20px; max-width: 75%; 
+  font-size: 16px; line-height: 1.3; position: relative; word-wrap: break-word;
 }
-.msg.me { 
-  align-self: flex-end; 
-  background: var(--outgoing); 
-  color: var(--text-out); 
-  border-bottom-right-radius: 4px;
-}
-.msg.other { 
-  align-self: flex-start; 
-  background: var(--incoming); 
-  color: var(--text-in); 
-  border-bottom-left-radius: 4px;
-}
+.msg.me { align-self: flex-end; background: var(--outgoing); color: var(--text-out); border-bottom-right-radius: 4px; }
+.msg.other { align-self: flex-start; background: var(--incoming); color: var(--text-in); border-bottom-left-radius: 4px; }
 
 .hidden { display: none !important; }
 .tab { display: none; }
@@ -160,6 +134,7 @@ footer {
     <span class="link" onclick="toRegister()">Hesabın yok mu? Kayıt Ol</span>
     <p id="errorLog" style="color:red; font-size:13px; margin-top:10px;"></p>
   </div>
+  
   <div class="auth-box hidden" id="registerBox">
     <h2>Kayıt Ol</h2>
     <input id="rUser" type="text" placeholder="Kullanıcı Adı">
@@ -186,8 +161,7 @@ footer {
       <div style="padding:20px;">
         <h2 style="margin:0 0 10px 0; font-size:24px;">Arkadaşlar</h2>
         <div style="background:#e3e3e8; padding:8px; border-radius:10px; display:flex;">
-          <i class="material-icons" style="color:#8e8e93; margin:0 5px;">search</i>
-          <input id="friendName" placeholder="Kullanıcı adı ara" style="margin:0; flex:1; border:none; background:transparent; padding:0;">
+          <input id="friendName" placeholder="Kullanıcı adı ara" style="margin:0; flex:1; border:none; background:transparent;">
           <button onclick="addFriend()" style="background:transparent; border:none; color:var(--primary); font-weight:600;">Ekle</button>
         </div>
         <div id="reqList" style="margin-top:20px;"></div>
@@ -227,7 +201,6 @@ footer {
       <i class="material-icons">arrow_back_ios</i>
       <span style="font-size:16px;">Sohbetler</span>
     </div>
-    
     <div style="flex:1; text-align:center; padding-right:80px;">
       <span id="chatTitle" style="font-weight:600; font-size:16px;">Kişi</span>
     </div>
@@ -246,7 +219,7 @@ footer {
 </div>
 
 <script>
-// --- AYARLAR ---
+/* 1. FIREBASE YAPILANDIRMASI */
 const firebaseConfig = {
   apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
   authDomain: "olednote.firebaseapp.com",
@@ -255,59 +228,103 @@ const firebaseConfig = {
   messagingSenderId: "797084747250",
   appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
 };
+
+// Başlatma
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// Global Değişkenler
 let currentUser = null;
 let currentChatID = null;
 
-// --- LOGIC ---
+/* 2. GİRİŞ VE KAYIT FONKSİYONLARI */
 function toRegister() {
   document.getElementById('loginBox').classList.add('hidden');
   document.getElementById('registerBox').classList.remove('hidden');
+  document.getElementById('errorReg').innerText = "";
 }
+
 function toLogin() {
   document.getElementById('registerBox').classList.add('hidden');
   document.getElementById('loginBox').classList.remove('hidden');
+  document.getElementById('errorLog').innerText = "";
 }
+
 function doLogin() {
   const e = document.getElementById('email').value;
   const p = document.getElementById('pass').value;
-  auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('errorLog').innerText = err.message);
+  
+  document.getElementById('errorLog').innerText = "Giriş yapılıyor...";
+  
+  auth.signInWithEmailAndPassword(e, p)
+    .then(() => {
+      // Başarılı olursa onAuthStateChanged tetiklenir
+      console.log("Giriş Başarılı");
+    })
+    .catch(err => {
+      // Hata varsa ekrana bas
+      document.getElementById('errorLog').innerText = err.message;
+      alert("Giriş Hatası: " + err.message);
+    });
 }
+
 function doRegister() {
   const u = document.getElementById('rUser').value.toLowerCase().trim();
   const e = document.getElementById('rEmail').value;
   const p = document.getElementById('rPass').value;
+  
   if(u.length < 3) return alert("Kullanıcı adı çok kısa!");
+
+  document.getElementById('errorReg').innerText = "Kontrol ediliyor...";
+
   db.collection('users').where('username','==',u).get().then(snap => {
-    if(!snap.empty) return alert("Bu isim alınmış!");
+    if(!snap.empty) {
+      document.getElementById('errorReg').innerText = "Bu isim alınmış!";
+      return;
+    }
+    
     auth.createUserWithEmailAndPassword(e, p).then(cred => {
-      return db.collection('users').doc(cred.user.uid).set({ username: u, email: e, uid: cred.user.uid });
-    }).catch(err => document.getElementById('errorReg').innerText = err.message);
+      return db.collection('users').doc(cred.user.uid).set({
+        username: u, email: e, uid: cred.user.uid
+      });
+    }).catch(err => {
+      document.getElementById('errorReg').innerText = err.message;
+    });
   });
 }
-function logOut() { auth.signOut(); location.reload(); }
 
+function logOut() {
+  auth.signOut();
+  location.reload();
+}
+
+/* 3. DURUM TAKİBİ (ANA GEÇİŞ) */
 auth.onAuthStateChanged(user => {
   if(user) {
+    // Giriş yapılmış
     currentUser = user;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'flex';
+    
+    // Profil bilgilerini çek
     db.collection('users').doc(user.uid).get().then(doc => {
       if(doc.exists) {
         document.getElementById('myDisName').innerText = doc.data().username;
         document.getElementById('myDisEmail').innerText = doc.data().email;
       }
     });
+
     loadFriends();
     loadRequests();
   } else {
+    // Çıkış yapılmış
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appScreen').style.display = 'none';
   }
 });
 
+/* 4. NAVİGASYON */
 function goTab(tabId, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
@@ -315,15 +332,22 @@ function goTab(tabId, btn) {
   btn.classList.add('active');
 }
 
+/* 5. ARKADAŞ MANTIĞI */
 function addFriend() {
   const target = document.getElementById('friendName').value.trim().toLowerCase();
   if(!target) return;
+  
   db.collection('users').where('username','==',target).get().then(snap => {
     if(snap.empty) return alert("Kullanıcı bulunamadı.");
     const friend = snap.docs[0].data();
     const myName = document.getElementById('myDisName').innerText;
-    db.collection('friend_requests').add({ from: currentUser.uid, to: friend.uid, fromName: myName })
-      .then(() => { alert("İstek gönderildi"); document.getElementById('friendName').value = ""; });
+    
+    db.collection('friend_requests').add({
+      from: currentUser.uid, to: friend.uid, fromName: myName
+    }).then(() => {
+      alert("İstek gönderildi");
+      document.getElementById('friendName').value = "";
+    });
   });
 }
 
@@ -346,8 +370,12 @@ function loadRequests() {
 function accept(reqId, uid, name) {
   const myName = document.getElementById('myDisName').innerText;
   const batch = db.batch();
+  
+  // Karşılıklı ekleme
   batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { uid: uid, username: name });
   batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { uid: currentUser.uid, username: myName });
+  
+  // İsteği sil
   batch.delete(db.collection('friend_requests').doc(reqId));
   batch.commit();
 }
@@ -357,7 +385,7 @@ function loadFriends() {
   .onSnapshot(snap => {
     const d = document.getElementById('chatListDiv');
     
-    // EdMessenger Botu
+    // EdMessenger Botu (En Üstte)
     let html = `
       <div class="user-row" onclick="openSystemChat()">
         <div class="avatar system"><i class="material-icons">verified</i></div>
@@ -391,7 +419,7 @@ function loadFriends() {
   });
 }
 
-// --- SOHBET AÇMA ---
+/* 6. SOHBET İŞLEMLERİ */
 function openSystemChat() {
   currentChatID = "SYSTEM";
   document.getElementById('chatScreen').style.display = 'flex';
@@ -424,486 +452,20 @@ function openChat(uid, name) {
   });
 }
 
-function closeChat() { document.getElementById('chatScreen').style.display = 'none'; }
-
-function sendMsg() {
-  const t = document.getElementById('msgTxt').value;
-  if(!t) return;
-  if(currentChatID === "SYSTEM") {
-    alert("Bu resmi bir duyuru hesabıdır, cevap verilemez.");
-    document.getElementById('msgTxt').value = "";
-    return;
-  }
-  db.collection('chats').doc(currentChatID).collection('msgs').add({
-    txt: t, by: currentUser.uid, at: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  document.getElementById('msgTxt').value = "";
+function closeChat() { 
+  document.getElementById('chatScreen').style.display = 'none'; 
 }
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>EdMessenger</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<style>
-/* --- iMESSAGE TARZI TEMA --- */
-:root {
-  --primary: #007AFF; /* Apple Mavisi */
-  --bg-app: #ffffff;
-  --bg-chat: #ffffff;
-  --incoming: #E9E9EB; /* Apple Grisi */
-  --outgoing: #007AFF; /* Apple Mavisi */
-  --text-in: #000000;
-  --text-out: #ffffff;
-  --gray-text: #8e8e93;
-}
-
-* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-body { margin: 0; background: var(--bg-app); height: 100vh; overflow: hidden; color: #000; }
-
-/* --- GİRİŞ EKRANI --- */
-#loginScreen {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: #f2f2f7; z-index: 2000;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-.auth-box { 
-  background: white; padding: 30px; border-radius: 20px; 
-  width: 85%; max-width: 340px; text-align: center; 
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
-}
-.auth-box h2 { color: var(--primary); margin-top: 0; font-weight: 700; }
-input { 
-  width: 100%; padding: 16px; margin-bottom: 12px; 
-  border: 1px solid #d1d1d6; border-radius: 12px; 
-  font-size: 16px; background: #f2f2f7; outline: none;
-}
-input:focus { border-color: var(--primary); background: white; }
-button.btn-main { 
-  width: 100%; padding: 16px; background: var(--primary); color: white; 
-  border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer;
-}
-.link { color: var(--primary); margin-top: 15px; display: block; font-size: 15px; cursor: pointer; }
-
-/* --- UYGULAMA --- */
-#appScreen { display: none; height: 100vh; flex-direction: column; background: white; }
-
-/* HEADER */
-header {
-  height: 50px; background: white; 
-  display: flex; align-items: center; justify-content: center;
-  border-bottom: 1px solid #e5e5ea;
-}
-header span { font-size: 17px; font-weight: 600; color: black; }
-header .logout-icon { position: absolute; right: 15px; color: var(--primary); cursor: pointer; font-size: 16px; font-weight: 500; }
-
-main { flex: 1; overflow-y: auto; padding-bottom: 85px; }
-
-/* LİSTE TASARIMI */
-.user-row {
-  display: flex; align-items: center; padding: 12px 20px; 
-  border-bottom: 1px solid #c6c6c8; cursor: pointer; background: white;
-  margin-left: 20px; /* iPhone tarzı çizgi */
-}
-.user-row:last-child { border-bottom: none; }
-.avatar {
-  width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-  margin-right: 15px; margin-left: -20px; /* Hizalama düzeltmesi */
-  font-size: 24px; flex-shrink: 0;
-}
-/* Özel EdMessenger Avatarı */
-.avatar.system { background: var(--primary); color: white; }
-
-/* MAVİ TİK */
-.verified-badge {
-  color: var(--primary); font-size: 16px; vertical-align: middle; margin-left: 4px;
-}
-
-/* FOOTER */
-footer {
-  position: fixed; bottom: 0; left: 0; width: 100%; height: 83px; /* iPhone X bottom bar payı */
-  background: #f9f9f9; border-top: 1px solid #b3b3b3;
-  display: flex; z-index: 1000; padding-bottom: 20px;
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-}
-.nav-btn {
-  flex: 1; border: none; background: transparent;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: #999;
-}
-.nav-btn.active { color: var(--primary); }
-.nav-btn i { font-size: 28px; margin-bottom: 2px; }
-.nav-btn span { font-size: 10px; font-weight: 500; }
-
-/* --- SOHBET EKRANI (iMessage Style) --- */
-#chatScreen {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: white; z-index: 3000; display: none; flex-direction: column;
-}
-#chatHeader {
-  height: 50px; background: rgba(255,255,255,0.9); 
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #b3b3b3;
-  display: flex; align-items: center; padding: 0 10px;
-  position: absolute; top: 0; width: 100%; z-index: 10;
-}
-#chatBody { 
-  flex: 1; overflow-y: auto; padding: 60px 15px 20px 15px; 
-  display: flex; flex-direction: column; gap: 4px; /* Mesajlar birbirine yakın */
-}
-#chatFooter { 
-  background: #f9f9f9; padding: 10px; display: flex; align-items: center; 
-  border-top: 1px solid #b3b3b3; padding-bottom: 30px; /* Klavye payı */
-}
-
-/* MESAJ BALONLARI */
-.msg { 
-  padding: 10px 16px; 
-  border-radius: 20px; 
-  max-width: 75%; 
-  font-size: 16px; 
-  line-height: 1.3;
-  position: relative;
-  word-wrap: break-word;
-}
-/* GÖNDEREN (SAĞ - MAVİ) */
-.msg.me { 
-  align-self: flex-end; 
-  background: var(--outgoing); 
-  color: var(--text-out); 
-  border-bottom-right-radius: 4px; /* iMessage kuyruğu */
-}
-/* ALAN (SOL - GRİ) */
-.msg.other { 
-  align-self: flex-start; 
-  background: var(--incoming); 
-  color: var(--text-in); 
-  border-bottom-left-radius: 4px; /* iMessage kuyruğu */
-}
-
-.hidden { display: none !important; }
-.tab { display: none; }
-.tab.active { display: block; }
-</style>
-</head>
-<body>
-
-<section id="loginScreen">
-  <div class="auth-box" id="loginBox">
-    <h2>EdMessenger</h2>
-    <input id="email" type="email" placeholder="E-posta">
-    <input id="pass" type="password" placeholder="Şifre">
-    <button class="btn-main" onclick="doLogin()">Giriş Yap</button>
-    <span class="link" onclick="toRegister()">Hesabın yok mu? Kayıt Ol</span>
-    <p id="errorLog" style="color:red; font-size:13px; margin-top:10px;"></p>
-  </div>
-  <div class="auth-box hidden" id="registerBox">
-    <h2>Kayıt Ol</h2>
-    <input id="rUser" type="text" placeholder="Kullanıcı Adı">
-    <input id="rEmail" type="email" placeholder="E-posta">
-    <input id="rPass" type="password" placeholder="Şifre">
-    <button class="btn-main" onclick="doRegister()">Kayıt Ol</button>
-    <span class="link" onclick="toLogin()">Giriş Yap</span>
-    <p id="errorReg" style="color:red; font-size:13px; margin-top:10px;"></p>
-  </div>
-</section>
-
-<section id="appScreen">
-  <header>
-    <span>EdMessenger</span>
-    <span class="logout-icon" onclick="logOut()">Çıkış</span>
-  </header>
-
-  <main>
-    <div id="tabChats" class="tab active">
-      <div id="chatListDiv">
-        </div>
-    </div>
-
-    <div id="tabFriends" class="tab">
-      <div style="padding:20px;">
-        <h2 style="margin:0 0 10px 0; font-size:24px;">Arkadaşlar</h2>
-        <div style="background:#e3e3e8; padding:8px; border-radius:10px; display:flex;">
-          <i class="material-icons" style="color:#8e8e93; margin:0 5px;">search</i>
-          <input id="friendName" placeholder="Kullanıcı adı ara" style="margin:0; flex:1; border:none; background:transparent; padding:0;">
-          <button onclick="addFriend()" style="background:transparent; border:none; color:var(--primary); font-weight:600;">Ekle</button>
-        </div>
-        <div id="reqList" style="margin-top:20px;"></div>
-      </div>
-    </div>
-
-    <div id="tabSettings" class="tab">
-      <div style="padding:40px 20px; text-align:center;">
-        <div class="avatar" style="width:100px; height:100px; font-size:50px; margin:0 auto 15px; background:#e1e1e6; color:#999;">
-          <i class="material-icons">person</i>
-        </div>
-        <h2 id="myDisName" style="margin:0;">...</h2>
-        <p id="myDisEmail" style="color:#8e8e93; margin-top:5px;">...</p>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <button class="nav-btn active" onclick="goTab('tabChats', this)">
-      <i class="material-icons">chat_bubble</i>
-      <span>Sohbetler</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('tabFriends', this)">
-      <i class="material-icons">people</i>
-      <span>Kişiler</span>
-    </button>
-    <button class="nav-btn" onclick="goTab('tabSettings', this)">
-      <i class="material-icons">settings</i>
-      <span>Ayarlar</span>
-    </button>
-  </footer>
-</section>
-
-<div id="chatScreen">
-  <div id="chatHeader">
-    <div style="display:flex; align-items:center; color:var(--primary); cursor:pointer" onclick="closeChat()">
-      <i class="material-icons">arrow_back_ios</i>
-      <span style="font-size:16px;">Sohbetler</span>
-    </div>
-    
-    <div style="flex:1; text-align:center; padding-right:80px;">
-      <div style="display:flex; flex-direction:column; align-items:center;">
-        <div id="chatHeaderAvatar" class="avatar" style="width:30px; height:30px; font-size:16px; margin:0 0 2px 0;"></div>
-        <span id="chatTitle" style="font-weight:600; font-size:14px;">Kişi</span>
-      </div>
-    </div>
-  </div>
-  
-  <div id="chatBody"></div>
-  
-  <div id="chatFooter">
-    <div style="background:white; border:1px solid #c6c6c8; border-radius:20px; flex:1; display:flex; padding:5px 10px;">
-      <input id="msgTxt" placeholder="iMessage" style="border:none; background:transparent; margin:0; padding:5px;">
-    </div>
-    <button onclick="sendMsg()" style="width:35px; height:35px; background:var(--primary); color:white; border:none; border-radius:50%; margin-left:10px; display:flex; align-items:center; justify-content:center;">
-      <i class="material-icons" style="font-size:18px">arrow_upward</i>
-    </button>
-  </div>
-</div>
-
-<script>
-// --- AYARLAR ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
-  authDomain: "olednote.firebaseapp.com",
-  projectId: "olednote",
-  storageBucket: "olednote.firebasestorage.app",
-  messagingSenderId: "797084747250",
-  appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-let currentUser = null;
-let currentChatID = null;
-
-// --- GİRİŞ / KAYIT ---
-function toRegister() {
-  document.getElementById('loginBox').classList.add('hidden');
-  document.getElementById('registerBox').classList.remove('hidden');
-}
-function toLogin() {
-  document.getElementById('registerBox').classList.add('hidden');
-  document.getElementById('loginBox').classList.remove('hidden');
-}
-function doLogin() {
-  const e = document.getElementById('email').value;
-  const p = document.getElementById('pass').value;
-  auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('errorLog').innerText = err.message);
-}
-function doRegister() {
-  const u = document.getElementById('rUser').value.toLowerCase().trim();
-  const e = document.getElementById('rEmail').value;
-  const p = document.getElementById('rPass').value;
-  if(u.length < 3) return alert("Kullanıcı adı çok kısa!");
-  db.collection('users').where('username','==',u).get().then(snap => {
-    if(!snap.empty) return alert("Bu isim alınmış!");
-    auth.createUserWithEmailAndPassword(e, p).then(cred => {
-      return db.collection('users').doc(cred.user.uid).set({ username: u, email: e, uid: cred.user.uid });
-    }).catch(err => document.getElementById('errorReg').innerText = err.message);
-  });
-}
-function logOut() { auth.signOut(); location.reload(); }
-
-// --- AUTH STATE ---
-auth.onAuthStateChanged(user => {
-  if(user) {
-    currentUser = user;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'flex';
-    db.collection('users').doc(user.uid).get().then(doc => {
-      if(doc.exists) {
-        document.getElementById('myDisName').innerText = doc.data().username;
-        document.getElementById('myDisEmail').innerText = doc.data().email;
-      }
-    });
-    loadFriends();
-    loadRequests();
-  } else {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appScreen').style.display = 'none';
-  }
-});
-
-function goTab(tabId, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// --- ARKADAŞ EKLEME ---
-function addFriend() {
-  const target = document.getElementById('friendName').value.trim().toLowerCase();
-  if(!target) return;
-  db.collection('users').where('username','==',target).get().then(snap => {
-    if(snap.empty) return alert("Kullanıcı bulunamadı.");
-    const friend = snap.docs[0].data();
-    const myName = document.getElementById('myDisName').innerText;
-    db.collection('friend_requests').add({ from: currentUser.uid, to: friend.uid, fromName: myName })
-      .then(() => { alert("İstek gönderildi"); document.getElementById('friendName').value = ""; });
-  });
-}
-
-function loadRequests() {
-  db.collection('friend_requests').where('to','==',currentUser.uid)
-  .onSnapshot(snap => {
-    const d = document.getElementById('reqList');
-    d.innerHTML = "";
-    snap.forEach(docSnap => {
-      const data = docSnap.data();
-      d.innerHTML += `
-        <div style="background:white; padding:15px; margin-bottom:10px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span><b>${data.fromName}</b> seni ekledi</span>
-          <button onclick="accept('${docSnap.id}','${data.from}','${data.fromName}')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:15px;">Kabul</button>
-        </div>`;
-    });
-  });
-}
-
-function accept(reqId, uid, name) {
-  const myName = document.getElementById('myDisName').innerText;
-  const batch = db.batch();
-  batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { uid: uid, username: name });
-  batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { uid: currentUser.uid, username: myName });
-  batch.delete(db.collection('friend_requests').doc(reqId));
-  batch.commit();
-}
-
-// --- SOHBET LİSTESİ (EDMESSENGER DAHİL) ---
-function loadFriends() {
-  db.collection('users').doc(currentUser.uid).collection('friends')
-  .onSnapshot(snap => {
-    const d = document.getElementById('chatListDiv');
-    
-    // 1. Önce "EdMessenger" Botunu En Üste Ekle
-    let html = `
-      <div class="user-row" onclick="openSystemChat()">
-        <div class="avatar system"><i class="material-icons">verified</i></div>
-        <div style="flex:1">
-           <div style="display:flex; justify-content:space-between;">
-             <b style="font-size:16px; color:black;">EdMessenger <i class="material-icons verified-badge">verified</i></b>
-             <span style="font-size:12px; color:#8e8e93;">Şimdi</span>
-           </div>
-           <p style="margin:2px 0 0 0; font-size:14px; color:#8e8e93; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-             EdMessenger'a Hoşgeldin. Yakında burası...
-           </p>
-        </div>
-      </div>
-    `;
-
-    // 2. Gerçek Arkadaşları Ekle
-    snap.forEach(docSnap => {
-      const f = docSnap.data();
-      html += `
-        <div class="user-row" onclick="openChat('${f.uid}','${f.username}')">
-          <div class="avatar"><i class="material-icons">person</i></div>
-          <div style="flex:1">
-             <div style="display:flex; justify-content:space-between;">
-                <b style="font-size:16px; color:black;">${f.username}</b>
-                <span style="font-size:12px; color:#8e8e93;"> > </span>
-             </div>
-             <p style="margin:2px 0 0 0; font-size:14px; color:#8e8e93;">Mesaj yazmak için dokun</p>
-          </div>
-        </div>`;
-    });
-    
-    d.innerHTML = html;
-  });
-}
-
-// --- SİSTEM SOHBETİ (FAKE) ---
-function openSystemChat() {
-  currentChatID = "SYSTEM";
-  document.getElementById('chatScreen').style.display = 'flex';
-  document.getElementById('chatTitle').innerHTML = 'EdMessenger <i class="material-icons verified-badge" style="font-size:14px">verified</i>';
-  
-  // Avatarı güncelle
-  const avatarEl = document.getElementById('chatHeaderAvatar');
-  avatarEl.className = "avatar system"; 
-  avatarEl.innerHTML = '<i class="material-icons">verified</i>';
-
-  const body = document.getElementById('chatBody');
-  body.innerHTML = `
-    <div style="text-align:center; color:#8e8e93; font-size:12px; margin-bottom:10px;">Bugün 10:42</div>
-    <div class="msg other">
-      EdMessenger'a Hoşgeldin. Yakında burası çok kalabalık olacak...
-    </div>
-  `;
-}
-
-// --- NORMAL SOHBET ---
-function openChat(uid, name) {
-  currentChatID = [currentUser.uid, uid].sort().join("_");
-  document.getElementById('chatScreen').style.display = 'flex';
-  document.getElementById('chatTitle').innerText = name;
-  
-  // Normal avatar
-  const avatarEl = document.getElementById('chatHeaderAvatar');
-  avatarEl.className = "avatar";
-  avatarEl.innerHTML = '<i class="material-icons">person</i>';
-
-  db.collection('chats').doc(currentChatID).collection('msgs').orderBy('at')
-  .onSnapshot(snap => {
-    const b = document.getElementById('chatBody');
-    b.innerHTML = "";
-    snap.forEach(docSnap => {
-      const m = docSnap.data();
-      const cls = m.by === currentUser.uid ? 'me' : 'other';
-      b.innerHTML += `<div class="msg ${cls}">${m.txt}</div>`;
-    });
-    b.scrollTop = b.scrollHeight;
-  });
-}
-
-function closeChat() { document.getElementById('chatScreen').style.display = 'none'; }
 
 function sendMsg() {
   const t = document.getElementById('msgTxt').value;
   if(!t) return;
   
-  // Sistem sohbetine yazılmasını engelle veya boşa yaz
   if(currentChatID === "SYSTEM") {
-    alert("Bu resmi bir duyuru hesabıdır, cevap verilemez.");
+    alert("Bu resmi bir hesaptır, cevap verilemez.");
     document.getElementById('msgTxt').value = "";
     return;
   }
-
+  
   db.collection('chats').doc(currentChatID).collection('msgs').add({
     txt: t, by: currentUser.uid, at: firebase.firestore.FieldValue.serverTimestamp()
   });
