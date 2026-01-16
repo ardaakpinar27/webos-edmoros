@@ -6,107 +6,411 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <style>
+/* TASARIM (WhatsApp Tarzı) */
 :root {
   --primary: #075E54;
   --secondary: #128C7E;
   --bg: #e5ddd5;
   --white: #ffffff;
+  --incoming-msg: #ffffff;
+  --outgoing-msg: #dcf8c6;
 }
-* { box-sizing: border-box; font-family: sans-serif; }
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body { margin: 0; background: #d1d7db; height: 100vh; overflow: hidden; }
 .hidden { display: none !important; }
-.btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+.btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 16px; }
 .btn-primary { background: var(--secondary); color: white; }
+.btn-primary:active { background: var(--primary); }
+input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
 
-/* AUTH */
-#loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; }
-.auth-card { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
+/* GİRİŞ EKRANI */
+#loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; background: #f0f2f5; }
+.auth-card { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.link { color: var(--secondary); cursor: pointer; margin-top: 15px; display: inline-block; font-size: 14px; }
+.error { color: red; font-size: 13px; margin-top: 10px; }
 
-/* APP */
+/* UYGULAMA EKRANI */
 #appScreen { display: flex; flex-direction: column; height: 100%; background: white; max-width: 500px; margin: 0 auto; position: relative; }
-header { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
-main { flex: 1; overflow-y: auto; background: white; }
+
+/* Header */
+header { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+header h3 { margin: 0; font-size: 19px; }
+
+/* Main Tabs */
+main { flex: 1; overflow-y: auto; background: white; position: relative; }
 .tab { display: none; }
 .tab.active { display: block; }
 
-/* LIST */
-.list-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+/* Liste Elemanları */
+.list-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; }
 .list-item:hover { background: #f5f5f5; }
-.avatar { width: 40px; height: 40px; background: #ddd; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
+.avatar { width: 45px; height: 45px; background: #ddd; border-radius: 50%; color: #555; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
 
-/* FOOTER */
+/* Footer */
 footer { background: white; border-top: 1px solid #ddd; height: 60px; display: flex; align-items: center; }
-.nav-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #888; font-size: 11px; }
+.nav-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #888; padding: 8px 0; }
 .nav-btn span { font-size: 24px; margin-bottom: 2px; }
 .nav-btn.active { color: var(--primary); }
 
-/* CHAT VIEW */
-#chatView { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 99; display: flex; flex-direction: column; }
+/* SOHBET PENCERESİ */
+#chatView { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 50; display: flex; flex-direction: column; }
 #chatHeader { background: var(--primary); padding: 10px; color: white; display: flex; align-items: center; height: 60px; }
-#chatMessages { flex: 1; }
-#chatInputArea { background: white; padding: 10px; height: 60px; }
+#chatMessages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+#chatInputArea { background: white; padding: 8px; display: flex; align-items: center; min-height: 60px; }
+
+/* Mesaj Balonları */
+.msg { padding: 8px 12px; border-radius: 8px; max-width: 75%; font-size: 14px; word-wrap: break-word; }
+.msg.sent { align-self: flex-end; background: var(--outgoing-msg); border-radius: 8px 0 8px 8px; }
+.msg.received { align-self: flex-start; background: var(--incoming-msg); border-radius: 0 8px 8px 8px; }
 </style>
 </head>
 <body>
 
 <section id="loginScreen">
   <div class="auth-card">
-    <h1 style="color:var(--primary)">EdMessenger</h1>
+    <h2 style="color:var(--primary); margin-top:0;">EdMessenger</h2>
     
     <div id="loginForm">
       <input id="loginEmail" type="email" placeholder="E-posta">
       <input id="loginPassword" type="password" placeholder="Şifre">
-      <button id="btnLoginAction" class="btn btn-primary">Giriş Yap</button>
-      <p onclick="document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden');" style="cursor:pointer; color:var(--secondary)">Kayıt Ol</p>
+      <button onclick="login()" class="btn btn-primary">Giriş Yap</button>
+      <span class="link" onclick="showRegister()">Hesabın yok mu? Kayıt Ol</span>
     </div>
 
     <div id="registerForm" class="hidden">
-      <input id="regUsername" type="text" placeholder="Kullanıcı Adı">
+      <input id="regUsername" type="text" placeholder="Kullanıcı Adı (küçük harf)">
       <input id="regEmail" type="email" placeholder="E-posta">
       <input id="regPassword" type="password" placeholder="Şifre">
-      <button id="btnRegisterAction" class="btn btn-primary">Kayıt Ol</button>
-      <p onclick="document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden');" style="cursor:pointer; color:var(--secondary)">Giriş Yap</p>
+      <button onclick="register()" class="btn btn-primary">Kayıt Ol</button>
+      <span class="link" onclick="showLogin()">Zaten hesabın var mı? Giriş Yap</span>
     </div>
-    <p id="authError" style="color:red; margin-top:10px;"></p>
+    
+    <p id="authError" class="error"></p>
   </div>
 </section>
 
 <section id="appScreen" class="hidden">
-  <header><h3>EdMessenger</h3></header>
+  <header>
+    <h3>EdMessenger</h3>
+    <button onclick="logout()" style="background:none; border:none; color:white;"><span class="material-icons">logout</span></button>
+  </header>
+
   <main>
-    <div id="tabChats" class="tab active"><p style="padding:20px;text-align:center">Sohbetler</p></div>
-    <div id="tabFriends" class="tab">
-      <div style="padding:10px; background:#f0f0f0; display:flex;">
-        <input id="friendInput" placeholder="Kullanıcı adı" style="margin:0; flex:1">
-        <button id="btnAddFriend" class="btn btn-primary" style="width:auto; margin-left:5px;">+</button>
-      </div>
-      <div id="requestList"></div>
+    <div id="tabChats" class="tab active">
       <div id="friendsList"></div>
     </div>
-    <div id="tabSettings" class="tab" style="padding:20px; text-align:center">
-      <h2 id="settingsUsername">User</h2>
-      <p id="settingsEmail">mail</p>
-      <button id="btnLogout" style="background:#d32f2f; color:white; padding:10px; border:none; border-radius:5px;">Çıkış</button>
+
+    <div id="tabFriends" class="tab">
+      <div style="padding:15px; background:#f0f0f0; display:flex; gap:10px;">
+        <input id="friendInput" placeholder="Kullanıcı adı ara..." style="margin:0;">
+        <button onclick="sendRequest()" class="btn btn-primary" style="width:auto;">Ekle</button>
+      </div>
+      <div id="requestsList" style="padding:10px;"></div>
+    </div>
+
+    <div id="tabSettings" class="tab">
+      <div style="padding:30px; text-align:center;">
+        <div class="avatar" style="width:80px; height:80px; font-size:40px; margin:0 auto 20px;">
+          <span class="material-icons" style="font-size:40px">person</span>
+        </div>
+        <h2 id="myUsername">...</h2>
+        <p id="myEmail">...</p>
+      </div>
     </div>
   </main>
+
   <footer>
-    <button id="navChats" class="nav-btn active"><span class="material-icons">chat</span>Sohbet</button>
-    <button id="navFriends" class="nav-btn"><span class="material-icons">group</span>Arkadaşlar</button>
-    <button id="navSettings" class="nav-btn"><span class="material-icons">settings</span>Ayarlar</button>
+    <button id="navChats" class="nav-btn active" onclick="openTab('chats')">
+      <span class="material-icons">chat</span>Sohbet
+    </button>
+    <button id="navFriends" class="nav-btn" onclick="openTab('friends')">
+      <span class="material-icons">person_add</span>Arkadaş
+    </button>
+    <button id="navSettings" class="nav-btn" onclick="openTab('settings')">
+      <span class="material-icons">settings</span>Ayarlar
+    </button>
   </footer>
-  
+
   <div id="chatView" class="hidden">
     <div id="chatHeader">
-      <button id="closeChatBtn" style="background:none; border:none; color:white; font-size:24px; margin-right:10px;">&larr;</button>
-      <b id="chatTitle">Name</b>
+      <button onclick="closeChat()" style="background:none; border:none; color:white; margin-right:10px;"><span class="material-icons">arrow_back</span></button>
+      <div class="avatar" style="width:35px; height:35px; margin-right:10px; font-size:20px;"><span class="material-icons">person</span></div>
+      <b id="chatTitle" style="font-size:16px;">Kullanıcı</b>
     </div>
     <div id="chatMessages"></div>
-    <div id="chatInputArea"><input placeholder="Mesaj..." style="border-radius:20px;"></div>
+    <div id="chatInputArea">
+      <input id="msgInput" placeholder="Mesaj yaz..." style="margin:0; flex:1; border-radius:20px;">
+      <button onclick="sendMessage()" style="width:45px; height:45px; border-radius:50%; border:none; background:var(--primary); color:white; margin-left:8px; display:flex; align-items:center; justify-content:center;">
+        <span class="material-icons">send</span>
+      </button>
+    </div>
   </div>
 </section>
 
-<script type="module" src="app.js"></script>
+<script>
+  // 1. Firebase Ayarları
+  const firebaseConfig = {
+    apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
+    authDomain: "olednote.firebaseapp.com",
+    projectId: "olednote",
+    storageBucket: "olednote.firebasestorage.app",
+    messagingSenderId: "797084747250",
+    appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
+  };
+
+  // Uygulamayı başlat
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Değişkenler
+  let currentUser = null;
+  let currentChatFriendId = null;
+
+  // --- GİRİŞ / ÇIKIŞ İŞLEMLERİ ---
+  
+  function showRegister() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('authError').textContent = "";
+  }
+  
+  function showLogin() {
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('authError').textContent = "";
+  }
+
+  function login() {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPassword').value;
+    document.getElementById('authError').textContent = "Giriş yapılıyor...";
+    
+    auth.signInWithEmailAndPassword(email, pass).catch(err => {
+      document.getElementById('authError').textContent = err.message;
+    });
+  }
+
+  function register() {
+    const userVal = document.getElementById('regUsername').value.trim().toLowerCase();
+    const email = document.getElementById('regEmail').value;
+    const pass = document.getElementById('regPassword').value;
+
+    if (userVal.length < 3) {
+      alert("Kullanıcı adı en az 3 karakter olmalı.");
+      return;
+    }
+
+    document.getElementById('authError').textContent = "Kontrol ediliyor...";
+
+    // Kullanıcı adı kontrolü
+    db.collection('users').where('username', '==', userVal).get().then(snap => {
+      if (!snap.empty) {
+        document.getElementById('authError').textContent = "Bu kullanıcı adı alınmış.";
+        return;
+      }
+
+      // Kayıt ol
+      auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+        // Veritabanına yaz
+        return db.collection('users').doc(cred.user.uid).set({
+          uid: cred.user.uid,
+          email: email,
+          username: userVal
+        });
+      }).then(() => {
+        alert("Kayıt başarılı!");
+      }).catch(err => {
+        document.getElementById('authError').textContent = err.message;
+      });
+    });
+  }
+
+  function logout() {
+    auth.signOut();
+    location.reload(); // Sayfayı yenile ki her şey sıfırlansın
+  }
+
+  // --- DURUM TAKİBİ ---
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+      
+      // Profil bilgisini çek
+      db.collection('users').doc(user.uid).get().then(doc => {
+        if(doc.exists) {
+          document.getElementById('myUsername').textContent = doc.data().username;
+          document.getElementById('myEmail').textContent = doc.data().email;
+        }
+      });
+
+      listenRequests();
+      listenFriends();
+    } else {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('appScreen').classList.add('hidden');
+    }
+  });
+
+  // --- SEKME GEÇİŞLERİ ---
+  function openTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+    if(tabName === 'chats') {
+      document.getElementById('tabChats').classList.add('active');
+      document.getElementById('navChats').classList.add('active');
+    } else if(tabName === 'friends') {
+      document.getElementById('tabFriends').classList.add('active');
+      document.getElementById('navFriends').classList.add('active');
+    } else if(tabName === 'settings') {
+      document.getElementById('tabSettings').classList.add('active');
+      document.getElementById('navSettings').classList.add('active');
+    }
+  }
+
+  // --- ARKADAŞLIK SİSTEMİ ---
+  function sendRequest() {
+    const targetName = document.getElementById('friendInput').value.trim().toLowerCase();
+    if(!targetName) return;
+
+    db.collection('users').where('username', '==', targetName).get().then(snap => {
+      if(snap.empty) {
+        alert("Kullanıcı bulunamadı.");
+        return;
+      }
+      const targetUser = snap.docs[0].data();
+      const myName = document.getElementById('myUsername').textContent;
+
+      db.collection('friend_requests').add({
+        from: currentUser.uid,
+        to: targetUser.uid,
+        fromUsername: myName
+      }).then(() => {
+        alert("İstek gönderildi!");
+        document.getElementById('friendInput').value = "";
+      });
+    });
+  }
+
+  function listenRequests() {
+    db.collection('friend_requests').where('to', '==', currentUser.uid)
+      .onSnapshot(snap => {
+        const list = document.getElementById('requestsList');
+        list.innerHTML = "";
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const div = document.createElement('div');
+          div.style.cssText = "background:white; padding:10px; margin-bottom:5px; border-radius:5px; border:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;";
+          div.innerHTML = `<span><b>${d.fromUsername}</b> seni ekledi</span> <button id="btn-${docSnap.id}" class="btn btn-primary" style="width:auto; padding:5px 10px; font-size:12px;">Kabul Et</button>`;
+          list.appendChild(div);
+
+          document.getElementById(`btn-${docSnap.id}`).onclick = () => acceptRequest(docSnap.id, d.from, d.fromUsername);
+        });
+      });
+  }
+
+  function acceptRequest(reqId, fromId, fromName) {
+    const myName = document.getElementById('myUsername').textContent;
+    
+    // 1. Beni onun listesine ekle
+    db.collection('users').doc(fromId).collection('friends').doc(currentUser.uid).set({
+      uid: currentUser.uid,
+      username: myName
+    });
+
+    // 2. Onu benim listeme ekle
+    db.collection('users').doc(currentUser.uid).collection('friends').doc(fromId).set({
+      uid: fromId,
+      username: fromName
+    }).then(() => {
+      // 3. İsteği sil
+      db.collection('friend_requests').doc(reqId).delete();
+      alert("Arkadaş eklendi!");
+    });
+  }
+
+  function listenFriends() {
+    db.collection('users').doc(currentUser.uid).collection('friends')
+      .onSnapshot(snap => {
+        const list = document.getElementById('friendsList');
+        list.innerHTML = "";
+        if(snap.empty) list.innerHTML = "<p style='padding:20px;text-align:center;color:#999'>Henüz sohbetin yok.</p>";
+        
+        snap.forEach(d => {
+          const friend = d.data();
+          const div = document.createElement('div');
+          div.className = 'list-item';
+          div.innerHTML = `
+            <div class="avatar"><span class="material-icons">person</span></div>
+            <div style="flex:1">
+              <h3 style="margin:0; font-size:16px;">${friend.username}</h3>
+              <p style="margin:0; font-size:13px; color:#888;">Sohbet etmek için dokun</p>
+            </div>
+          `;
+          div.onclick = () => openChat(friend.uid, friend.username);
+          list.appendChild(div);
+        });
+      });
+  }
+
+  // --- SOHBET ---
+  function openChat(uid, username) {
+    currentChatFriendId = uid;
+    document.getElementById('chatView').classList.remove('hidden');
+    document.getElementById('chatTitle').textContent = username;
+    document.getElementById('chatMessages').innerHTML = ""; // Temizle
+    listenMessages(uid);
+  }
+
+  function closeChat() {
+    document.getElementById('chatView').classList.add('hidden');
+    currentChatFriendId = null;
+  }
+
+  function sendMessage() {
+    const txt = document.getElementById('msgInput').value.trim();
+    if(!txt || !currentChatFriendId) return;
+
+    // Mesaj ID'si oluştur (küçük olan UID + büyük olan UID) ki ikisi için de ortak olsun
+    const chatId = [currentUser.uid, currentChatFriendId].sort().join("_");
+    
+    db.collection('chats').doc(chatId).collection('messages').add({
+      text: txt,
+      sender: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    document.getElementById('msgInput').value = "";
+  }
+
+  function listenMessages(friendId) {
+    const chatId = [currentUser.uid, friendId].sort().join("_");
+    
+    db.collection('chats').doc(chatId).collection('messages')
+      .orderBy('createdAt', 'asc')
+      .onSnapshot(snap => {
+        const div = document.getElementById('chatMessages');
+        div.innerHTML = "";
+        snap.forEach(d => {
+          const data = d.data();
+          const p = document.createElement('div');
+          p.className = 'msg ' + (data.sender === currentUser.uid ? 'sent' : 'received');
+          p.textContent = data.text;
+          div.appendChild(p);
+        });
+        // En alta kaydır
+        div.scrollTop = div.scrollHeight;
+      });
+  }
+</script>
 </body>
 </html>
