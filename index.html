@@ -19,12 +19,8 @@
   --text-in: #000000; 
   --bg-app: #f2f2f7; 
   --danger: #ff3b30;
-  
-  /* SPLASH İÇİN SİLİK MAVİ RENK */
   --faint-blue: #89CFF0; 
-
-  /* GÜVENLİ ALAN (DURUM ÇUBUĞU PAYI) */
-  /* Android webview bazen env() desteklemezse diye min 25px verdim */
+  /* Safe Area */
   --safe-top: max(25px, env(safe-area-inset-top)); 
   --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
@@ -32,26 +28,20 @@
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 html, body { margin: 0; background: var(--bg-app); height: 100%; overflow: hidden; color: #000; overscroll-behavior: none; }
 
-/* --- SPLASH SCREEN (YENİ TASARIM) --- */
+/* --- SPLASH SCREEN --- */
 #customSplashScreen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: #ffffff; /* FULL BEYAZ */
-  z-index: 99999; /* En üstte */
+  background: #ffffff; z-index: 99999;
   display: flex; align-items: center; justify-content: center;
   transition: opacity 0.5s ease-out;
 }
-.splash-text {
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--faint-blue); /* SİLİK MAVİ */
-  letter-spacing: 1px;
-}
+.splash-text { font-size: 36px; font-weight: 800; color: var(--faint-blue); letter-spacing: 1px; }
 
 /* --- GİRİŞ EKRANI --- */
 #loginScreen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background: #f2f2f7; z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding-top: var(--safe-top); /* Üstten pay */
+  padding-top: var(--safe-top);
 }
 .auth-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 .auth-box h2 { color: var(--primary); margin-top: 0; }
@@ -63,10 +53,10 @@ input:focus { border-color: var(--primary); background: white; }
 /* --- UYGULAMA İSKELETİ --- */
 #appScreen { display: none; height: 100%; flex-direction: column; background: var(--bg-app); }
 
-/* ANA HEADER (SAFE AREA DÜZELTİLDİ) */
+/* HEADER */
 header { 
   height: calc(50px + var(--safe-top)); 
-  padding-top: var(--safe-top); /* Durum çubuğu kadar boşluk */
+  padding-top: var(--safe-top); 
   background: rgba(255,255,255,0.9); 
   display: flex; align-items: center; justify-content: center; 
   border-bottom: 1px solid #c6c6c8; backdrop-filter: blur(10px); 
@@ -79,41 +69,36 @@ main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
 /* LİSTE & KARTLAR */
 .list-title { padding: 10px 20px 5px; font-size: 13px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
 
+/* ANİMASYON KALDIRILDI: Sadece renk değişimi */
 .chat-card {
   display: flex; align-items: center; padding: 15px;
   background: white; margin: 8px 15px; border-radius: 18px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer;
-  transition: transform 0.1s; -webkit-user-select: none; user-select: none;
+  -webkit-user-select: none; user-select: none;
+  /* Transform transition kaldırıldı */
 }
-.chat-card:active { transform: scale(0.98); background: #f9f9f9; }
+.chat-card:active { background: #f2f2f7; /* Sadece renk değişimi */ }
 
-/* Bubble Aralığı Açıldı */
 .friend-card {
   display: flex; align-items: center; padding: 15px;
   background: white; 
-  margin: 0 15px 15px 15px; /* Alt boşluk arttırıldı */
+  margin: 0 15px 15px 15px; 
   border-radius: 18px; 
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   cursor: pointer; -webkit-user-select: none; user-select: none;
 }
-.friend-card:active { background: #f0f0f0; transform: scale(0.99); }
+.friend-card:active { background: #f2f2f7; /* Sadece renk değişimi */ }
 
-.avatar { 
-  width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93; 
-  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-  margin-right: 15px; flex-shrink: 0; font-size: 24px; 
-  overflow: hidden; position: relative;
-}
+.avatar { width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0; font-size: 24px; overflow: hidden; position: relative; }
 .avatar.system { background: var(--primary); color: white; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
 .info { flex: 1; min-width: 0; }
 .name-row { display: flex; justify-content: space-between; align-items: baseline; }
 .name { font-weight: 600; font-size: 16px; color: #000; }
 .time { font-size: 12px; color: #8e8e93; }
 .last-msg { font-size: 14px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
 
-/* ANA FOOTER */
+/* FOOTER */
 footer { 
   position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; 
   background: rgba(249,249,249,0.95); border-top: 1px solid #b3b3b3; 
@@ -123,39 +108,40 @@ footer {
 .nav-btn.active { color: var(--primary); }
 .nav-btn i { font-size: 26px; } .nav-btn span { font-size: 9px; font-weight: 500; }
 
-/* --- SOHBET EKRANI (SABİT HEADER ÇÖZÜMÜ) --- */
+/* --- SOHBET EKRANI (FLEXBOX + DVH FIX) --- */
 #chatScreen { 
-  position: fixed; top: 0; right: 0; width: 100%; height: 100%; 
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0; /* Tüm kenarlara yapış */
+  width: 100%; 
+  height: 100dvh; /* Dynamic Viewport Height - Klavye dostu */
   background: white; z-index: 5000; display: none; 
-  flex-direction: column; /* Dikey Flex Yapısı */
+  flex-direction: column; 
 }
 
-/* Header Sabit (Küçülmez) */
 #chatHeader { 
   height: calc(50px + var(--safe-top)); 
-  padding-top: var(--safe-top); /* Durum çubuğu payı */
+  padding-top: var(--safe-top); 
   background: rgba(255,255,255,0.95); 
   border-bottom: 1px solid #b3b3b3; 
   display: flex; align-items: center; padding-left: 10px; padding-right: 10px; 
-  flex-shrink: 0; /* ASLA KÜÇÜLME */
+  flex-shrink: 0; /* HEADER ÇAKILI KALIR */
   z-index: 10;
 }
 
-/* Mesaj Alanı (Klavye açılınca daralacak olan tek yer) */
 #chatBody { 
-  flex: 1; /* Kalan alanı doldur */
-  overflow-y: auto; /* Scroll burada olacak */
+  flex: 1; /* Esnek alan */
+  overflow-y: auto; 
   padding: 10px 15px; 
   display: flex; flex-direction: column; gap: 6px; 
   background: white;
+  min-height: 0; /* Flexbox içinde scroll'un düzgün çalışması için şart */
 }
 
-/* Footer Sabit (Küçülmez, klavye üstüne gelir) */
 #chatFooter { 
   background: #f9f9f9; padding: 8px 10px 10px; 
   display: flex; align-items: center; 
   border-top: 1px solid #b3b3b3; 
-  flex-shrink: 0; /* ASLA KÜÇÜLME */
+  flex-shrink: 0; /* FOOTER ÇAKILI KALIR */
 }
 
 .msg { padding: 8px 14px; border-radius: 18px; max-width: 75%; font-size: 16px; line-height: 1.3; position: relative; word-wrap: break-word; display: flex; flex-direction: column; }
@@ -307,9 +293,9 @@ function doRegister() {
 }
 function logOut() { auth.signOut(); location.reload(); }
 
-/* LOGIN & SPLASH CHECK */
+/* LOGIN & SPLASH */
 auth.onAuthStateChanged(user => {
-  // Kullanıcı durumu belli oldu, Splash'i kaldır
+  // Kontrol bitince Splash'i fade-out yap ve gizle
   const splash = document.getElementById('customSplashScreen');
   splash.style.opacity = '0';
   setTimeout(() => { splash.style.display = 'none'; }, 500);
@@ -397,7 +383,446 @@ function showContextMenu(x,y){
 }
 function closeContextMenu(){document.getElementById('contextMenu').style.display='none';document.getElementById('menuOverlay').style.display='none';}
 
-// CUSTOM MODAL LOGIC
+// CUSTOM MODAL
+function showCustomConfirm(title, msg, onConfirm) {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalMsg').innerText = msg;
+  document.getElementById('customConfirmOverlay').style.display = 'flex';
+  const btn = document.getElementById('btnModalConfirm');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.onclick = () => { onConfirm(); closeCustomConfirm(); };
+}
+function closeCustomConfirm(){document.getElementById('customConfirmOverlay').style.display='none';}
+
+function triggerCustomConfirm() {
+  if(!selectedFriendUid) return;
+  closeContextMenu();
+  const isChat = document.getElementById('tabChats').classList.contains('active');
+  if(isChat) {
+    showCustomConfirm("Sohbeti Kapat", "Sohbet listenizden kaldırılsın mı? (Arkadaş silinmez)", () => {
+      db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).update({ lastMsg: firebase.firestore.FieldValue.delete(), lastMsgTime: firebase.firestore.FieldValue.delete() });
+    });
+  } else {
+    showCustomConfirm("Arkadaşı Sil", "Bu kişiyi ve geçmişi tamamen silmek istiyor musunuz?", () => {
+      db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).delete();
+    });
+  }
+}
+
+/* CHAT */
+function openSystemChat(){currentChatID="SYSTEM";document.getElementById('chatScreen').style.display='flex';document.getElementById('chatTitle').innerHTML='ArMessage <i class="material-icons verified-badge" style="font-size:14px">verified</i>';document.getElementById('chatBody').innerHTML='<div style="text-align:center;color:#8e8e93;font-size:12px;margin-bottom:10px;">Bugün</div><div class="msg other">ArMessage\'a Hoşgeldin.</div>';}
+function openChat(u,n){
+  currentChatID=[currentUser.uid,u].sort().join("_"); document.getElementById('chatScreen').style.display='flex'; document.getElementById('chatTitle').innerText=n;
+  db.collection('chats').doc(currentChatID).collection('msgs').orderBy('at').onSnapshot(s=>{
+    const b=document.getElementById('chatBody'); b.innerHTML="";
+    s.forEach(d=>{const m=d.data();const c=m.by===currentUser.uid?'me':'other';let t="";if(m.at){const dt=m.at.toDate();t=dt.getHours().toString().padStart(2,'0')+":"+dt.getMinutes().toString().padStart(2,'0');}b.innerHTML+=`<div class="msg ${c}">${m.txt}<span class="msg-time">${t}</span></div>`;});
+    b.scrollTop=b.scrollHeight;
+  });
+}
+function closeChat(){document.getElementById('chatScreen').style.display='none';}
+async function sendMsg(){
+  const t=document.getElementById('msgTxt').value; if(!t)return; if(currentChatID==="SYSTEM")return alert("Cevap verilemez.");
+  try{
+    await db.collection('chats').doc(currentChatID).collection('msgs').add({txt:t,by:currentUser.uid,at:firebase.firestore.FieldValue.serverTimestamp()});
+    const fid=currentChatID.replace(currentUser.uid,"").replace("_","");
+    db.collection('users').doc(currentUser.uid).collection('friends').doc(fid).set({lastMsg:t,lastMsgTime:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    db.collection('users').doc(fid).collection('friends').doc(currentUser.uid).set({lastMsg:t,lastMsgTime:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    document.getElementById('msgTxt').value=""; document.getElementById('msgTxt').focus();
+    const fd=await db.collection('users').doc(fid).get();
+    if(fd.exists&&fd.data().fcmToken){
+      fetch('https://fcm.googleapis.com/fcm/send',{method:'POST',headers:{'Authorization':'key='+FCM_SERVER_KEY,'Content-Type':'application/json'},body:JSON.stringify({"to":fd.data().fcmToken,"notification":{"title":document.getElementById('myDisName').innerText,"body":t,"sound":"default"}})});
+    }
+  }catch(e){console.log(e);}
+}
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
+<title>ArMessage</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+/* --- TEMEL AYARLAR --- */
+:root {
+  --primary: #007AFF; 
+  --incoming: #E9E9EB; 
+  --outgoing: #007AFF;
+  --text-out: #ffffff; 
+  --text-in: #000000; 
+  --bg-app: #f2f2f7; 
+  --danger: #ff3b30;
+  --faint-blue: #89CFF0; 
+  /* Safe Area */
+  --safe-top: max(25px, env(safe-area-inset-top)); 
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+html, body { margin: 0; background: var(--bg-app); height: 100%; overflow: hidden; color: #000; overscroll-behavior: none; }
+
+/* --- SPLASH SCREEN --- */
+#customSplashScreen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #ffffff; z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.5s ease-out;
+}
+.splash-text { font-size: 36px; font-weight: 800; color: var(--faint-blue); letter-spacing: 1px; }
+
+/* --- GİRİŞ EKRANI --- */
+#loginScreen {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: #f2f2f7; z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding-top: var(--safe-top);
+}
+.auth-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.auth-box h2 { color: var(--primary); margin-top: 0; }
+input { width: 100%; padding: 16px; margin-bottom: 12px; border: 1px solid #d1d1d6; border-radius: 12px; font-size: 16px; background: #f9f9f9; outline: none; }
+input:focus { border-color: var(--primary); background: white; }
+.btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
+.link { color: var(--primary); margin-top: 15px; display: block; font-size: 15px; cursor: pointer; }
+
+/* --- UYGULAMA İSKELETİ --- */
+#appScreen { display: none; height: 100%; flex-direction: column; background: var(--bg-app); }
+
+/* HEADER */
+header { 
+  height: calc(50px + var(--safe-top)); 
+  padding-top: var(--safe-top); 
+  background: rgba(255,255,255,0.9); 
+  display: flex; align-items: center; justify-content: center; 
+  border-bottom: 1px solid #c6c6c8; backdrop-filter: blur(10px); 
+  flex-shrink: 0; z-index: 50;
+}
+header span { font-size: 17px; font-weight: 700; color: black; }
+
+main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
+
+/* LİSTE & KARTLAR */
+.list-title { padding: 10px 20px 5px; font-size: 13px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
+
+/* ANİMASYON KALDIRILDI: Sadece renk değişimi */
+.chat-card {
+  display: flex; align-items: center; padding: 15px;
+  background: white; margin: 8px 15px; border-radius: 18px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  /* Transform transition kaldırıldı */
+}
+.chat-card:active { background: #f2f2f7; /* Sadece renk değişimi */ }
+
+.friend-card {
+  display: flex; align-items: center; padding: 15px;
+  background: white; 
+  margin: 0 15px 15px 15px; 
+  border-radius: 18px; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.friend-card:active { background: #f2f2f7; /* Sadece renk değişimi */ }
+
+.avatar { width: 50px; height: 50px; background: #e1e1e6; color: #8e8e93; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0; font-size: 24px; overflow: hidden; position: relative; }
+.avatar.system { background: var(--primary); color: white; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.info { flex: 1; min-width: 0; }
+.name-row { display: flex; justify-content: space-between; align-items: baseline; }
+.name { font-weight: 600; font-size: 16px; color: #000; }
+.time { font-size: 12px; color: #8e8e93; }
+.last-msg { font-size: 14px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+
+/* FOOTER */
+footer { 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; 
+  background: rgba(249,249,249,0.95); border-top: 1px solid #b3b3b3; 
+  display: flex; z-index: 1000; padding-bottom: 5px; backdrop-filter: blur(20px); 
+}
+.nav-btn { flex: 1; border: none; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; }
+.nav-btn.active { color: var(--primary); }
+.nav-btn i { font-size: 26px; } .nav-btn span { font-size: 9px; font-weight: 500; }
+
+/* --- SOHBET EKRANI (FLEXBOX + DVH FIX) --- */
+#chatScreen { 
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0; /* Tüm kenarlara yapış */
+  width: 100%; 
+  height: 100dvh; /* Dynamic Viewport Height - Klavye dostu */
+  background: white; z-index: 5000; display: none; 
+  flex-direction: column; 
+}
+
+#chatHeader { 
+  height: calc(50px + var(--safe-top)); 
+  padding-top: var(--safe-top); 
+  background: rgba(255,255,255,0.95); 
+  border-bottom: 1px solid #b3b3b3; 
+  display: flex; align-items: center; padding-left: 10px; padding-right: 10px; 
+  flex-shrink: 0; /* HEADER ÇAKILI KALIR */
+  z-index: 10;
+}
+
+#chatBody { 
+  flex: 1; /* Esnek alan */
+  overflow-y: auto; 
+  padding: 10px 15px; 
+  display: flex; flex-direction: column; gap: 6px; 
+  background: white;
+  min-height: 0; /* Flexbox içinde scroll'un düzgün çalışması için şart */
+}
+
+#chatFooter { 
+  background: #f9f9f9; padding: 8px 10px 10px; 
+  display: flex; align-items: center; 
+  border-top: 1px solid #b3b3b3; 
+  flex-shrink: 0; /* FOOTER ÇAKILI KALIR */
+}
+
+.msg { padding: 8px 14px; border-radius: 18px; max-width: 75%; font-size: 16px; line-height: 1.3; position: relative; word-wrap: break-word; display: flex; flex-direction: column; }
+.msg.me { align-self: flex-end; background: var(--outgoing); color: var(--text-out); border-bottom-right-radius: 4px; }
+.msg.other { align-self: flex-start; background: var(--incoming); color: var(--text-in); border-bottom-left-radius: 4px; }
+.msg-time { font-size: 10px; margin-top: 4px; align-self: flex-end; opacity: 0.7; }
+
+/* AYARLAR */
+.settings-container { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px 20px 100px; }
+.btn-logout { width: 100%; padding: 15px; background: rgba(255, 59, 48, 0.1); color: var(--danger); border: 1px solid rgba(255, 59, 48, 0.2); border-radius: 25px; font-size: 16px; font-weight: 600; backdrop-filter: blur(10px); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* MODALS */
+#menuOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8999; display: none; }
+#contextMenu { position: absolute; display: none; z-index: 9000; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 160px; overflow: hidden; }
+.ctx-item { padding: 12px 15px; font-size: 14px; color: var(--danger); font-weight: 500; cursor: pointer; display: flex; align-items: center; }
+.ctx-item:hover { background: #f2f2f7; }
+
+#customConfirmOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.custom-modal { width: 80%; max-width: 300px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popIn 0.2s ease-out; }
+.custom-modal h3 { margin: 0 0 10px; font-size: 18px; font-weight: 600; } .custom-modal p { margin: 0 0 20px; font-size: 14px; color: #666; }
+.modal-actions { display: flex; gap: 10px; } .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+.btn-cancel { background: #e5e5ea; color: #000; } .btn-confirm { background: #ff3b30; color: white; }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.hidden { display: none !important; }
+.tab { display: none; height: 100%; }
+.tab.active { display: block; }
+</style>
+</head>
+<body>
+
+<div id="customSplashScreen">
+  <div class="splash-text">ArMessage</div>
+</div>
+
+<input type="file" id="avatarInput" accept="image/*" style="display:none">
+
+<section id="loginScreen">
+  <div class="auth-box" id="loginBox">
+    <h2>ArMessage</h2>
+    <input id="email" type="email" placeholder="E-posta">
+    <input id="pass" type="password" placeholder="Şifre">
+    <button class="btn-main" onclick="doLogin()">Giriş Yap</button>
+    <span class="link" onclick="toRegister()">Kayıt Ol</span>
+    <span class="link" onclick="resetPassword()" style="font-size:13px; color:#888; margin-top:10px;">Şifremi Unuttum</span>
+    <p id="errorLog" style="color:red; font-size:13px; margin-top:10px;"></p>
+  </div>
+  <div class="auth-box hidden" id="registerBox">
+    <h2>Kayıt Ol</h2>
+    <input id="rUser" type="text" placeholder="Kullanıcı Adı">
+    <input id="rEmail" type="email" placeholder="E-posta">
+    <input id="rPass" type="password" placeholder="Şifre">
+    <button class="btn-main" onclick="doRegister()">Kayıt Ol</button>
+    <span class="link" onclick="toLogin()">Giriş Yap</span>
+    <p id="errorReg" style="color:red; font-size:13px; margin-top:10px;"></p>
+  </div>
+</section>
+
+<section id="appScreen">
+  <header><span>ArMessage</span></header>
+  <main>
+    <div id="tabChats" class="tab active"><div id="chatListDiv"></div><div id="emptyChatState" style="text-align:center; padding:40px; color:#aaa; display:none;"><i class="material-icons" style="font-size:48px; opacity:0.5">chat_bubble_outline</i><p>Henüz mesaj yok.</p></div></div>
+    <div id="tabFriends" class="tab">
+      <div style="padding:20px 20px 0;">
+        <h2 style="margin:0 0 10px; font-size:26px;">Arkadaşlar</h2>
+        <div style="background:white; padding:10px; border-radius:12px; display:flex; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+          <i class="material-icons" style="color:#aaa; margin-right:5px;">search</i>
+          <input id="friendName" placeholder="Kullanıcı adı ara" style="margin:0; flex:1; border:none; background:transparent; padding:0;">
+          <button onclick="addFriend()" style="background:transparent; border:none; color:var(--primary); font-weight:600; padding:0 5px;">Ekle</button>
+        </div>
+        <div id="reqList" style="margin-top:15px;"></div>
+      </div>
+      <div class="list-title">Kişilerim</div>
+      <div id="friendListDiv"></div>
+    </div>
+    <div id="tabSettings" class="tab">
+      <div class="settings-container">
+        <div style="text-align:center; padding-top:40px;">
+          <div class="avatar" id="myAvatarDisplay" onclick="changeAvatar()" style="width:100px; height:100px; font-size:50px; margin:0 auto 15px; background:white; color:#ccc; border:1px solid #eee; cursor:pointer;"><i class="material-icons">add_a_photo</i></div>
+          <h2 id="myDisName" style="margin:0;">...</h2>
+          <p id="myDisEmail" style="color:#8e8e93; margin-top:5px;">...</p>
+        </div>
+        <button class="btn-logout" onclick="logOut()"><i class="material-icons" style="margin-right:8px;">logout</i> Çıkış Yap</button>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <button class="nav-btn active" onclick="goTab('tabChats', this)"><i class="material-icons">chat_bubble</i><span>Sohbetler</span></button>
+    <button class="nav-btn" onclick="goTab('tabFriends', this)"><i class="material-icons">people</i><span>Kişiler</span></button>
+    <button class="nav-btn" onclick="goTab('tabSettings', this)"><i class="material-icons">settings</i><span>Ayarlar</span></button>
+  </footer>
+</section>
+
+<div id="chatScreen">
+  <div id="chatHeader">
+    <div style="display:flex; align-items:center; color:var(--primary); cursor:pointer; width:80px;" onclick="closeChat()"><i class="material-icons">arrow_back_ios</i> <span style="font-size:16px;">Geri</span></div>
+    <div style="flex:1; text-align:center;"><span id="chatTitle" style="font-weight:600; font-size:16px;">Kişi</span></div>
+    <div style="width:80px;"></div>
+  </div>
+  <div id="chatBody"></div>
+  <div id="chatFooter">
+    <input id="msgTxt" placeholder="İleti yazın" style="flex:1; border:1px solid #ddd; background:white; border-radius:20px; padding:8px 12px; outline:none; margin:0;">
+    <button onclick="sendMsg()" style="width:36px; height:36px; background:var(--primary); color:white; border:none; border-radius:50%; margin-left:10px; display:flex; align-items:center; justify-content:center;"><i class="material-icons" style="font-size:18px">arrow_upward</i></button>
+  </div>
+</div>
+
+<div id="menuOverlay" onclick="closeContextMenu()"></div>
+<div id="contextMenu"><div class="ctx-item" onclick="triggerCustomConfirm()"><i class="material-icons">delete</i> <span id="ctxText">Sil</span></div></div>
+<div id="customConfirmOverlay"><div class="custom-modal"><h3 id="modalTitle">Onay</h3><p id="modalMsg">Emin misin?</p><div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeCustomConfirm()">Vazgeç</button><button class="modal-btn btn-confirm" id="btnModalConfirm">Evet</button></div></div></div>
+
+<script>
+/* CONFIG */
+const FCM_SERVER_KEY = "BURAYA_AAAA_ILE_BASLAYAN_ANAHTARI_YAPISTIR"; 
+const firebaseConfig = {
+  apiKey: "AIzaSyAMIIMACrsk6mNm3DQpziPHbQpwwTs2LX8",
+  authDomain: "olednote.firebaseapp.com",
+  projectId: "olednote",
+  storageBucket: "olednote.firebasestorage.app",
+  messagingSenderId: "797084747250",
+  appId: "1:797084747250:web:ad8406c6abe4c699b8d76b"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null; let currentChatID = null; let selectedFriendUid = null; let isLongPress = false; let longPressTimer;
+
+// KLAVYE FIX: Ekran boyutu değişince scroll'u aşağı it
+window.visualViewport.addEventListener('resize', () => {
+  if(document.getElementById('chatScreen').style.display === 'flex') {
+    document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
+  }
+});
+
+function saveMyToken(token) { if(!currentUser) return; db.collection('users').doc(currentUser.uid).update({ fcmToken: token }).catch(console.log); }
+
+/* AUTH */
+function toRegister() { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('registerBox').classList.remove('hidden'); }
+function toLogin() { document.getElementById('registerBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
+function resetPassword() { const e = document.getElementById('email').value; if(!e) return alert("E-posta girin."); auth.sendPasswordResetEmail(e).then(()=>alert("Link gönderildi.")).catch(e=>alert(e.message)); }
+function doLogin() { auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('pass').value).catch(e=>document.getElementById('errorLog').innerText=e.message); }
+function doRegister() {
+  const u = document.getElementById('rUser').value.toLowerCase().trim(); const e = document.getElementById('rEmail').value; const p = document.getElementById('rPass').value;
+  if(u.length<3) return alert("Kısa isim!");
+  db.collection('users').where('username','==',u).get().then(snap=>{
+    if(!snap.empty) { document.getElementById('errorReg').innerText="Alınmış isim!"; return; }
+    auth.createUserWithEmailAndPassword(e,p).then(c=>db.collection('users').doc(c.user.uid).set({username:u,email:e,uid:c.user.uid})).catch(e=>document.getElementById('errorReg').innerText=e.message);
+  });
+}
+function logOut() { auth.signOut(); location.reload(); }
+
+/* LOGIN & SPLASH */
+auth.onAuthStateChanged(user => {
+  // Kontrol bitince Splash'i fade-out yap ve gizle
+  const splash = document.getElementById('customSplashScreen');
+  splash.style.opacity = '0';
+  setTimeout(() => { splash.style.display = 'none'; }, 500);
+
+  if(user) {
+    currentUser = user;
+    document.getElementById('loginScreen').style.display='none'; document.getElementById('appScreen').style.display='flex';
+    db.collection('users').doc(user.uid).onSnapshot(doc=>{ if(doc.exists){ const d=doc.data(); document.getElementById('myDisName').innerText=d.username; document.getElementById('myDisEmail').innerText=d.email; const av=document.getElementById('myAvatarDisplay'); av.innerHTML=d.photoURL?`<img src="${d.photoURL}">`:`<i class="material-icons">add_a_photo</i>`; }});
+    loadAllFriends(); loadActiveChats(); loadRequests();
+  } else { 
+    document.getElementById('loginScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; 
+  }
+});
+
+function goTab(t,b) { document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); b.classList.add('active'); }
+
+/* AVATAR */
+function changeAvatar() { document.getElementById('avatarInput').click(); }
+document.getElementById('avatarInput').addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=ev=>{ const i=new Image(); i.onload=()=>{
+    const c=document.createElement('canvas'); let w=i.width,h=i.height,m=300;
+    if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}}
+    c.width=w;c.height=h; c.getContext('2d').drawImage(i,0,0,w,h);
+    db.collection('users').doc(currentUser.uid).update({photoURL:c.toDataURL('image/jpeg',0.7)}).then(()=>alert("Fotoğraf güncellendi!"));
+  }; i.src=ev.target.result; }; r.readAsDataURL(f);
+});
+
+/* FRIENDS */
+function addFriend() {
+  const t=document.getElementById('friendName').value.trim().toLowerCase(); if(!t)return;
+  db.collection('users').where('username','==',t).get().then(s=>{
+    if(s.empty)return alert("Bulunamadı.");
+    db.collection('friend_requests').add({from:currentUser.uid,to:s.docs[0].id,fromName:document.getElementById('myDisName').innerText}).then(()=>{alert("İstek gitti.");document.getElementById('friendName').value="";});
+  });
+}
+function loadRequests() {
+  db.collection('friend_requests').where('to','==',currentUser.uid).onSnapshot(s=>{
+    const d=document.getElementById('reqList'); d.innerHTML="";
+    s.forEach(doc=>{ const da=doc.data(); d.innerHTML+=`<div style="background:white;padding:12px;margin-bottom:10px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,0.05);"><span><b>${da.fromName}</b> ekledi</span><button onclick="accept('${doc.id}','${da.from}','${da.fromName}')" style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:15px;">Kabul</button></div>`; });
+  });
+}
+async function accept(rid,uid,name) {
+  try {
+    const mn=document.getElementById('myDisName').innerText;
+    const sd=(await db.collection('users').doc(uid).get()).data()||{};
+    const md=(await db.collection('users').doc(currentUser.uid).get()).data()||{};
+    const b=db.batch();
+    b.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid),{uid:uid,username:name,photoURL:sd.photoURL||null});
+    b.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid),{uid:currentUser.uid,username:mn,photoURL:md.photoURL||null});
+    b.delete(db.collection('friend_requests').doc(rid));
+    await b.commit();
+  } catch(e){alert("Hata:"+e.message)}
+}
+
+/* LISTS */
+function loadAllFriends() {
+  db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(s=>{
+    const d=document.getElementById('friendListDiv');
+    let h=`<div class="friend-card" onclick="openSystemChat()"><div class="avatar system"><i class="material-icons">verified</i></div><div class="info"><div class="name">ArMessage <i class="material-icons verified-badge">verified</i></div><div class="time" style="color:var(--primary);">Resmi Hesap</div></div></div>`;
+    s.forEach(doc=>{ const f=doc.data(); h+=`<div class="friend-card" oncontextmenu="handleRightClick(event,'${f.uid}')" ontouchstart="handleTouchStart(event,'${f.uid}')" ontouchend="handleTouchEnd()" ontouchmove="handleTouchMove()" onclick="handleClick('${f.uid}','${f.username}')"><div class="avatar">${f.photoURL?`<img src="${f.photoURL}">`:`<i class="material-icons">person</i>`}</div><div class="info"><div class="name">${f.username}</div><div class="time">Profil</div></div></div>`; });
+    d.innerHTML=h;
+  });
+}
+function loadActiveChats() {
+  db.collection('users').doc(currentUser.uid).collection('friends').orderBy('lastMsgTime','desc').onSnapshot(s=>{
+    const d=document.getElementById('chatListDiv'); let h=""; let has=false;
+    s.forEach(doc=>{ const f=doc.data(); if(f.lastMsg){ has=true; let t=""; if(f.lastMsgTime){const dt=f.lastMsgTime.toDate();t=dt.getHours().toString().padStart(2,'0')+":"+dt.getMinutes().toString().padStart(2,'0');} h+=`<div class="chat-card" oncontextmenu="handleRightClick(event,'${f.uid}')" ontouchstart="handleTouchStart(event,'${f.uid}')" ontouchend="handleTouchEnd()" ontouchmove="handleTouchMove()" onclick="handleClick('${f.uid}','${f.username}')"><div class="avatar">${f.photoURL?`<img src="${f.photoURL}">`:`<i class="material-icons">person</i>`}</div><div class="info"><div class="name-row"><span class="name">${f.username}</span><span class="time">${t}</span></div><div class="last-msg">${f.lastMsg}</div></div></div>`; } });
+    d.innerHTML=h; document.getElementById('emptyChatState').style.display=has?'none':'block';
+  });
+}
+
+/* INTERACTION & MODAL */
+function handleRightClick(e,u){e.preventDefault();selectedFriendUid=u;showContextMenu(e.clientX,e.clientY);}
+function handleTouchStart(e,u){isLongPress=false;selectedFriendUid=u;longPressTimer=setTimeout(()=>{isLongPress=true;if(navigator.vibrate)navigator.vibrate(50);showContextMenu(e.touches[0].clientX,e.touches[0].clientY);},600);}
+function handleTouchEnd(){clearTimeout(longPressTimer);}
+function handleTouchMove(){clearTimeout(longPressTimer);}
+function handleClick(u,n){if(!isLongPress)openChat(u,n);}
+
+function showContextMenu(x,y){
+  const m=document.getElementById('contextMenu'); const t=document.getElementById('ctxText');
+  t.innerText=document.getElementById('tabChats').classList.contains('active')?"Sohbeti Kapat":"Arkadaşı Sil";
+  if(x+160>window.innerWidth)x=window.innerWidth-170;
+  m.style.left=x+'px'; m.style.top=y+'px'; m.style.display='block'; document.getElementById('menuOverlay').style.display='block';
+}
+function closeContextMenu(){document.getElementById('contextMenu').style.display='none';document.getElementById('menuOverlay').style.display='none';}
+
+// CUSTOM MODAL
 function showCustomConfirm(title, msg, onConfirm) {
   document.getElementById('modalTitle').innerText = title;
   document.getElementById('modalMsg').innerText = msg;
