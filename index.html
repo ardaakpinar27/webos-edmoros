@@ -391,4 +391,186 @@ function loadRequests() {
 }
 async function accept(reqId, uid, name) {
   try {
-    const myName = document.getElementB
+    const myName = document.getElementById('myDisName').innerText;
+    const senderSnap = await db.collection('users').doc(uid).get();
+    const senderData = senderSnap.data() || {};
+    const mySnap = await db.collection('users').doc(currentUser.uid).get();
+    const myData = mySnap.data() || {};
+    const batch = db.batch();
+    batch.set(db.collection('users').doc(currentUser.uid).collection('friends').doc(uid), { uid: uid, username: name, photoURL: senderData.photoURL || null });
+    batch.set(db.collection('users').doc(uid).collection('friends').doc(currentUser.uid), { uid: currentUser.uid, username: myName, photoURL: myData.photoURL || null });
+    batch.delete(db.collection('friend_requests').doc(reqId));
+    await batch.commit();
+  } catch (error) { alert("Hata: " + error.message); }
+}
+
+/* --- LISTS --- */
+function loadAllFriends() {
+  db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(snap => {
+    const d = document.getElementById('friendListDiv');
+    let html = `
+      <div class="friend-card" onclick="openSystemChat()">
+        <div class="avatar system"><i class="material-icons">verified</i></div>
+        <div class="info"><div class="name">ArMessage <i class="material-icons verified-badge">verified</i></div><div class="time" style="font-size:11px; color:var(--primary);">Resmi Hesap</div></div>
+      </div>`;
+    snap.forEach(docSnap => {
+      const f = docSnap.data();
+      let avatarHtml = f.photoURL ? `<img src="${f.photoURL}">` : `<i class="material-icons">person</i>`;
+      html += `
+        <div class="friend-card" oncontextmenu="handleRightClick(event, '${f.uid}')" ontouchstart="handleTouchStart(event, '${f.uid}')" ontouchend="handleTouchEnd()" ontouchmove="handleTouchMove()" onclick="handleClick('${f.uid}', '${f.username}')">
+          <div class="avatar">${avatarHtml}</div>
+          <div class="info"><div class="name">${f.username}</div><div class="time">Profil</div></div>
+        </div>`;
+    });
+    d.innerHTML = html;
+  });
+}
+
+function loadActiveChats() {
+  db.collection('users').doc(currentUser.uid).collection('friends').orderBy('lastMsgTime', 'desc').onSnapshot(snap => {
+    const d = document.getElementById('chatListDiv');
+    const emptyState = document.getElementById('emptyChatState');
+    let html = ""; let hasChat = false;
+    snap.forEach(docSnap => {
+      const f = docSnap.data();
+      if(f.lastMsg) {
+        hasChat = true;
+        let timeStr = "";
+        if(f.lastMsgTime) { const date = f.lastMsgTime.toDate(); timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0'); }
+        let avatarHtml = f.photoURL ? `<img src="${f.photoURL}">` : `<i class="material-icons">person</i>`;
+        html += `
+          <div class="chat-card" oncontextmenu="handleRightClick(event, '${f.uid}')" ontouchstart="handleTouchStart(event, '${f.uid}')" ontouchend="handleTouchEnd()" ontouchmove="handleTouchMove()" onclick="handleClick('${f.uid}', '${f.username}')">
+            <div class="avatar">${avatarHtml}</div>
+            <div class="info"><div class="name-row"><span class="name">${f.username}</span><span class="time">${timeStr}</span></div><div class="last-msg">${f.lastMsg}</div></div>
+          </div>`;
+      }
+    });
+    d.innerHTML = html;
+    emptyState.style.display = hasChat ? 'none' : 'block';
+  });
+}
+
+/* --- INTERACTION & CONTEXT MENU --- */
+function handleRightClick(e, uid) { e.preventDefault(); selectedFriendUid = uid; showContextMenu(e.clientX, e.clientY); }
+function handleTouchStart(e, uid) { isLongPress = false; selectedFriendUid = uid; longPressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); showContextMenu(e.touches[0].clientX, e.touches[0].clientY); }, 600); }
+function handleTouchEnd() { clearTimeout(longPressTimer); }
+function handleTouchMove() { clearTimeout(longPressTimer); }
+function handleClick(uid, name) { if(!isLongPress) openChat(uid, name); }
+
+function showContextMenu(x, y) {
+  const menu = document.getElementById('contextMenu');
+  const txt = document.getElementById('ctxText');
+  const isChatTab = document.getElementById('tabChats').classList.contains('active');
+  txt.innerText = isChatTab ? "Sohbeti Kapat" : "Arkadaşı Sil";
+  if (x + 160 > window.innerWidth) x = window.innerWidth - 170;
+  menu.style.left = x + 'px'; menu.style.top = y + 'px'; menu.style.display = 'block';
+  document.getElementById('menuOverlay').style.display = 'block';
+}
+function closeContextMenu() { document.getElementById('contextMenu').style.display = 'none'; document.getElementById('menuOverlay').style.display = 'none'; }
+
+/* --- CUSTOM CONFIRM MODAL (YENİ SİSTEM) --- */
+function showCustomConfirm(title, message, onConfirmCallback) {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalMsg').innerText = message;
+  document.getElementById('customConfirmOverlay').style.display = "flex";
+  
+  // Önceki listener'ı temizle ki üst üste binmesin
+  const btn = document.getElementById('btnModalConfirm');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  
+  newBtn.onclick = function() {
+    onConfirmCallback();
+    closeCustomConfirm();
+  };
+}
+
+function closeCustomConfirm() {
+  document.getElementById('customConfirmOverlay').style.display = "none";
+}
+
+/* SİLME TETİKLEYİCİSİ */
+function triggerCustomConfirm() {
+  if(!selectedFriendUid) return;
+  closeContextMenu(); // Önce sağ tık menüsünü kapat
+
+  const isChatTab = document.getElementById('tabChats').classList.contains('active');
+  
+  if(isChatTab) {
+    showCustomConfirm(
+      "Sohbeti Kapat", 
+      "Bu sohbeti listenizden kaldırmak istiyor musunuz? (Arkadaşınız silinmez)", 
+      function() {
+        db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).update({
+           lastMsg: firebase.firestore.FieldValue.delete(), lastMsgTime: firebase.firestore.FieldValue.delete()
+        });
+      }
+    );
+  } else {
+    showCustomConfirm(
+      "Arkadaşı Sil", 
+      "Bu kişiyi ve tüm geçmişi tamamen silmek istiyor musunuz? Bu işlem geri alınamaz.", 
+      function() {
+        db.collection('users').doc(currentUser.uid).collection('friends').doc(selectedFriendUid).delete();
+      }
+    );
+  }
+}
+
+/* --- CHAT --- */
+function openSystemChat() {
+  currentChatID = "SYSTEM";
+  document.getElementById('chatScreen').style.display = 'flex';
+  document.getElementById('chatTitle').innerHTML = 'ArMessage <i class="material-icons verified-badge" style="font-size:14px">verified</i>';
+  document.getElementById('chatBody').innerHTML = `<div style="text-align:center; color:#8e8e93; font-size:12px; margin-bottom:10px;">Bugün</div><div class="msg other">ArMessage'a Hoşgeldin.</div>`;
+}
+
+function openChat(uid, name) {
+  currentChatID = [currentUser.uid, uid].sort().join("_");
+  document.getElementById('chatScreen').style.display = 'flex';
+  document.getElementById('chatTitle').innerText = name;
+  const b = document.getElementById('chatBody'); b.innerHTML = "";
+  
+  db.collection('chats').doc(currentChatID).collection('msgs').orderBy('at').onSnapshot(snap => {
+    b.innerHTML = "";
+    snap.forEach(docSnap => {
+      const m = docSnap.data();
+      const cls = m.by === currentUser.uid ? 'me' : 'other';
+      let t = "";
+      if(m.at) { const d = m.at.toDate(); t = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0'); }
+      b.innerHTML += `<div class="msg ${cls}">${m.txt}<span class="msg-time">${t}</span></div>`;
+    });
+    b.scrollTop = b.scrollHeight;
+  });
+}
+
+function closeChat() { document.getElementById('chatScreen').style.display = 'none'; }
+
+async function sendMsg() {
+  const txt = document.getElementById('msgTxt').value;
+  if(!txt) return;
+  if(currentChatID === "SYSTEM") return alert("Cevap verilemez.");
+
+  try {
+    await db.collection('chats').doc(currentChatID).collection('msgs').add({
+      txt: txt, by: currentUser.uid, at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const friendID = currentChatID.replace(currentUser.uid, "").replace("_", "");
+    db.collection('users').doc(currentUser.uid).collection('friends').doc(friendID).set({ lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    db.collection('users').doc(friendID).collection('friends').doc(currentUser.uid).set({ lastMsg: txt, lastMsgTime: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    
+    document.getElementById('msgTxt').value = ""; document.getElementById('msgTxt').focus();
+
+    const friendDoc = await db.collection('users').doc(friendID).get();
+    if (friendDoc.exists && friendDoc.data().fcmToken) {
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: { 'Authorization': 'key=' + FCM_SERVER_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "to": friendDoc.data().fcmToken, "notification": { "title": document.getElementById('myDisName').innerText, "body": txt, "sound": "default" } })
+      });
+    }
+  } catch(e) { console.error(e); }
+}
+</script>
+</body>
+</html>
