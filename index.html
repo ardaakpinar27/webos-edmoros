@@ -19,26 +19,39 @@
   --text-in: #000000; 
   --bg-app: #f2f2f7; 
   --danger: #ff3b30;
-  --splash-bg: #e3f2fd; /* Hafif Silik Mavi */
+  
+  /* SPLASH İÇİN SİLİK MAVİ RENK */
+  --faint-blue: #89CFF0; 
+
+  /* GÜVENLİ ALAN (DURUM ÇUBUĞU PAYI) */
+  /* Android webview bazen env() desteklemezse diye min 25px verdim */
+  --safe-top: max(25px, env(safe-area-inset-top)); 
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
+
 * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 html, body { margin: 0; background: var(--bg-app); height: 100%; overflow: hidden; color: #000; overscroll-behavior: none; }
 
-/* --- WEB SPLASH SCREEN (YENİ) --- */
-#webSplashScreen {
+/* --- SPLASH SCREEN (YENİ TASARIM) --- */
+#customSplashScreen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--splash-bg); 
+  background: #ffffff; /* FULL BEYAZ */
   z-index: 99999; /* En üstte */
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  transition: opacity 0.8s ease-out; /* Fade Out Animasyonu */
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.5s ease-out;
 }
-.splash-logo { font-size: 80px; color: var(--primary); margin-bottom: 20px; }
-.splash-text { font-size: 32px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+.splash-text {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--faint-blue); /* SİLİK MAVİ */
+  letter-spacing: 1px;
+}
 
 /* --- GİRİŞ EKRANI --- */
 #loginScreen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background: #f2f2f7; z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding-top: var(--safe-top); /* Üstten pay */
 }
 .auth-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 .auth-box h2 { color: var(--primary); margin-top: 0; }
@@ -50,13 +63,14 @@ input:focus { border-color: var(--primary); background: white; }
 /* --- UYGULAMA İSKELETİ --- */
 #appScreen { display: none; height: 100%; flex-direction: column; background: var(--bg-app); }
 
-/* HEADER */
+/* ANA HEADER (SAFE AREA DÜZELTİLDİ) */
 header { 
-  height: 50px; background: rgba(255,255,255,0.9); 
+  height: calc(50px + var(--safe-top)); 
+  padding-top: var(--safe-top); /* Durum çubuğu kadar boşluk */
+  background: rgba(255,255,255,0.9); 
   display: flex; align-items: center; justify-content: center; 
   border-bottom: 1px solid #c6c6c8; backdrop-filter: blur(10px); 
-  flex-shrink: 0; /* Küçülmesin */
-  position: relative; z-index: 50;
+  flex-shrink: 0; z-index: 50;
 }
 header span { font-size: 17px; font-weight: 700; color: black; }
 
@@ -65,7 +79,6 @@ main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
 /* LİSTE & KARTLAR */
 .list-title { padding: 10px 20px 5px; font-size: 13px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
 
-/* Chat Bubble (Sohbetler Sekmesi) */
 .chat-card {
   display: flex; align-items: center; padding: 15px;
   background: white; margin: 8px 15px; border-radius: 18px;
@@ -74,13 +87,13 @@ main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
 }
 .chat-card:active { transform: scale(0.98); background: #f9f9f9; }
 
-/* Friend Bubble (Arkadaşlar Sekmesi - BOŞLUKLU) */
+/* Bubble Aralığı Açıldı */
 .friend-card {
-  display: flex; align-items: center; padding: 15px; /* Padding arttı */
+  display: flex; align-items: center; padding: 15px;
   background: white; 
-  margin: 0 15px 12px 15px; /* Alt boşluk (12px) eklendi */
-  border-radius: 18px; /* Tam oval */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Hafif gölge */
+  margin: 0 15px 15px 15px; /* Alt boşluk arttırıldı */
+  border-radius: 18px; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   cursor: pointer; -webkit-user-select: none; user-select: none;
 }
 .friend-card:active { background: #f0f0f0; transform: scale(0.99); }
@@ -100,7 +113,7 @@ main { flex: 1; overflow-y: auto; padding-bottom: 80px; padding-top: 10px; }
 .time { font-size: 12px; color: #8e8e93; }
 .last-msg { font-size: 14px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
 
-/* FOOTER */
+/* ANA FOOTER */
 footer { 
   position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; 
   background: rgba(249,249,249,0.95); border-top: 1px solid #b3b3b3; 
@@ -110,38 +123,39 @@ footer {
 .nav-btn.active { color: var(--primary); }
 .nav-btn i { font-size: 26px; } .nav-btn span { font-size: 9px; font-weight: 500; }
 
-/* --- SOHBET EKRANI (FLEXBOX FIX) --- */
-/* Klavye açılınca header ve footer'ın sabit kalması için */
+/* --- SOHBET EKRANI (SABİT HEADER ÇÖZÜMÜ) --- */
 #chatScreen { 
   position: fixed; top: 0; right: 0; width: 100%; height: 100%; 
   background: white; z-index: 5000; display: none; 
-  flex-direction: column; /* Dikey dizilim */
+  flex-direction: column; /* Dikey Flex Yapısı */
 }
 
-/* Header: Esnek olmayan (sabit) alan */
+/* Header Sabit (Küçülmez) */
 #chatHeader { 
-  height: 50px; background: rgba(255,255,255,0.95); 
+  height: calc(50px + var(--safe-top)); 
+  padding-top: var(--safe-top); /* Durum çubuğu payı */
+  background: rgba(255,255,255,0.95); 
   border-bottom: 1px solid #b3b3b3; 
-  display: flex; align-items: center; padding: 0 10px; 
-  flex-shrink: 0; /* Küçülme */
+  display: flex; align-items: center; padding-left: 10px; padding-right: 10px; 
+  flex-shrink: 0; /* ASLA KÜÇÜLME */
   z-index: 10;
 }
 
-/* Body: Esnek alan (Klavye açılınca daralan kısım burası) */
+/* Mesaj Alanı (Klavye açılınca daralacak olan tek yer) */
 #chatBody { 
-  flex: 1; /* Kalan tüm alanı kapla */
-  overflow-y: auto; /* İçerik taşarsa kaydır */
+  flex: 1; /* Kalan alanı doldur */
+  overflow-y: auto; /* Scroll burada olacak */
   padding: 10px 15px; 
   display: flex; flex-direction: column; gap: 6px; 
   background: white;
 }
 
-/* Footer: Esnek olmayan (sabit) alan */
+/* Footer Sabit (Küçülmez, klavye üstüne gelir) */
 #chatFooter { 
   background: #f9f9f9; padding: 8px 10px 10px; 
   display: flex; align-items: center; 
   border-top: 1px solid #b3b3b3; 
-  flex-shrink: 0; /* Küçülme */
+  flex-shrink: 0; /* ASLA KÜÇÜLME */
 }
 
 .msg { padding: 8px 14px; border-radius: 18px; max-width: 75%; font-size: 16px; line-height: 1.3; position: relative; word-wrap: break-word; display: flex; flex-direction: column; }
@@ -153,7 +167,7 @@ footer {
 .settings-container { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px 20px 100px; }
 .btn-logout { width: 100%; padding: 15px; background: rgba(255, 59, 48, 0.1); color: var(--danger); border: 1px solid rgba(255, 59, 48, 0.2); border-radius: 25px; font-size: 16px; font-weight: 600; backdrop-filter: blur(10px); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-/* MENÜLER */
+/* MODALS */
 #menuOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8999; display: none; }
 #contextMenu { position: absolute; display: none; z-index: 9000; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 160px; overflow: hidden; }
 .ctx-item { padding: 12px 15px; font-size: 14px; color: var(--danger); font-weight: 500; cursor: pointer; display: flex; align-items: center; }
@@ -173,8 +187,7 @@ footer {
 </head>
 <body>
 
-<div id="webSplashScreen">
-  <i class="material-icons splash-logo">chat_bubble</i>
+<div id="customSplashScreen">
   <div class="splash-text">ArMessage</div>
 </div>
 
@@ -254,16 +267,6 @@ footer {
 <div id="customConfirmOverlay"><div class="custom-modal"><h3 id="modalTitle">Onay</h3><p id="modalMsg">Emin misin?</p><div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeCustomConfirm()">Vazgeç</button><button class="modal-btn btn-confirm" id="btnModalConfirm">Evet</button></div></div></div>
 
 <script>
-/* SPLASH LOGIC */
-window.onload = () => {
-  // Sayfa yüklendikten 2.5 saniye sonra splash'i gizle
-  setTimeout(() => {
-    const splash = document.getElementById('webSplashScreen');
-    splash.style.opacity = '0';
-    setTimeout(() => { splash.style.display = 'none'; }, 800); // Animasyon bitince kaldır
-  }, 2500);
-};
-
 /* CONFIG */
 const FCM_SERVER_KEY = "BURAYA_AAAA_ILE_BASLAYAN_ANAHTARI_YAPISTIR"; 
 const firebaseConfig = {
@@ -304,13 +307,21 @@ function doRegister() {
 }
 function logOut() { auth.signOut(); location.reload(); }
 
+/* LOGIN & SPLASH CHECK */
 auth.onAuthStateChanged(user => {
+  // Kullanıcı durumu belli oldu, Splash'i kaldır
+  const splash = document.getElementById('customSplashScreen');
+  splash.style.opacity = '0';
+  setTimeout(() => { splash.style.display = 'none'; }, 500);
+
   if(user) {
     currentUser = user;
     document.getElementById('loginScreen').style.display='none'; document.getElementById('appScreen').style.display='flex';
     db.collection('users').doc(user.uid).onSnapshot(doc=>{ if(doc.exists){ const d=doc.data(); document.getElementById('myDisName').innerText=d.username; document.getElementById('myDisEmail').innerText=d.email; const av=document.getElementById('myAvatarDisplay'); av.innerHTML=d.photoURL?`<img src="${d.photoURL}">`:`<i class="material-icons">add_a_photo</i>`; }});
     loadAllFriends(); loadActiveChats(); loadRequests();
-  } else { document.getElementById('loginScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; }
+  } else { 
+    document.getElementById('loginScreen').style.display='flex'; document.getElementById('appScreen').style.display='none'; 
+  }
 });
 
 function goTab(t,b) { document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); b.classList.add('active'); }
@@ -371,7 +382,7 @@ function loadActiveChats() {
   });
 }
 
-/* INTERACTION */
+/* INTERACTION & MODAL */
 function handleRightClick(e,u){e.preventDefault();selectedFriendUid=u;showContextMenu(e.clientX,e.clientY);}
 function handleTouchStart(e,u){isLongPress=false;selectedFriendUid=u;longPressTimer=setTimeout(()=>{isLongPress=true;if(navigator.vibrate)navigator.vibrate(50);showContextMenu(e.touches[0].clientX,e.touches[0].clientY);},600);}
 function handleTouchEnd(){clearTimeout(longPressTimer);}
@@ -386,7 +397,7 @@ function showContextMenu(x,y){
 }
 function closeContextMenu(){document.getElementById('contextMenu').style.display='none';document.getElementById('menuOverlay').style.display='none';}
 
-// CUSTOM MODAL
+// CUSTOM MODAL LOGIC
 function showCustomConfirm(title, msg, onConfirm) {
   document.getElementById('modalTitle').innerText = title;
   document.getElementById('modalMsg').innerText = msg;
